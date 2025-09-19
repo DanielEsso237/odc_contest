@@ -1,3 +1,26 @@
+# accounts/admin.py
 from django.contrib import admin
+from .models import User
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-# Register your models here.
+class UserAdmin(BaseUserAdmin):
+    list_display = ('username', 'email', 'role', 'is_staff', 'is_active', 'date_joined')
+    list_filter = ('role', 'is_staff', 'is_superuser', 'is_active')
+    search_fields = ('username', 'email')
+    fieldsets = (
+        ('Informations Personnelles', {
+            'fields': ('username', 'first_name', 'email', 'profile_picture')
+        }),
+        ('Mot de Passe', {
+            'fields': ('password',)  # Ajoute explicitement le champ password
+        }),
+        ('Permissions', {
+            'fields': ('is_active', 'is_staff', 'is_superuser', 'role', 'groups', 'user_permissions')
+        }),
+        ('Dates Importantes', {
+            'fields': ('last_login', 'date_joined')
+        }),
+    )
+    # Pas besoin d'exclude ici, car password est géré par le widget spécial de Django
+
+admin.site.register(User, UserAdmin)

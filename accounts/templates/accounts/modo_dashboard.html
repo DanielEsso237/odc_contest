@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord Modérateur - ODC Vote</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'accounts/css/login.css' %}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-section">
+            <h2 class="login-title">Bienvenue, {{ user.username }} (Modérateur)</h2>
+            <p>Vous pouvez gérer les participants et les concours ici.</p>
+            <a href="{% url 'accounts:login' %}" class="login-button">Déconnexion</a>
+        </div>
+    </div>
+</body>
+</html>
