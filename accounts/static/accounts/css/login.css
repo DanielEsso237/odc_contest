@@ -1,0 +1,136 @@
+body {
+    background: linear-gradient(to right, #dbeafe, #e0e7ff);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.login-container {
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-width: 800px;
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .login-container {
+        flex-direction: row;
+    }
+}
+
+.login-section, .signup-section {
+    padding: 32px;
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .login-section {
+        width: 50%;
+    }
+    .signup-section {
+        width: 50%;
+        background-color: #6b46c1;
+        color: #ffffff;
+    }
+}
+
+.login-title, .signup-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 16px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 14px;
+    color: #4b5563;
+    margin-bottom: 4px;
+}
+
+.form-group input {
+    padding: 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.forgot-password {
+    display: block;
+    font-size: 12px;
+    color: #6b46c1;
+    text-decoration: none;
+    margin-top: 4px;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+.login-button {
+    padding: 8px;
+    background-color: #6b46c1;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 16px;
+}
+
+.login-button:hover {
+    background-color: #553c9a;
+}
+
+.signup-text {
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.signup-button {
+    display: block;
+    padding: 8px;
+    background-color: #ffffff;
+    color: #6b46c1;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.signup-button:hover {
+    background-color: #f9fafb;
+}
+
+.message {
+    padding: 8px;
+    margin-bottom: 16px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.success {
+    background-color: #10b981;
+    color: #ffffff;
+}
+
+.error {
+    background-color: #ef4444;
+    color: #ffffff;
+}
