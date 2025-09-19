@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - ODC Vote</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'accounts/css/login.css' %}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-section">
+            <h2 class="login-title">Create Account</h2>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="message {% if message.tags == 'error' %}error{% else %}success{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <form method="post" enctype="multipart/form-data" class="login-form">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <span class="error">{{ field.errors }}</span>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="login-button">SIGN UP</button>
+            </form>
+        </div>
+        <div class="signup-section">
+            <h2 class="signup-title">Welcome Back!</h2>
+            <p class="signup-text">Entre tes détails personnels pour utiliser toutes les fonctionnalités du site.</p>
+            <a href="{% url 'accounts:login' %}" class="signup-button">SIGN IN</a>
+        </div>
+    </div>
+</body>
+</html>
