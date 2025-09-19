@@ -10,7 +10,7 @@
 <body>
     <div class="login-container">
         <div class="login-section">
-            <h2 class="login-title">Create Account</h2>
+            <h2 class="login-title">Inscription</h2>
             {% if messages %}
                 {% for message in messages %}
                     <div class="message {% if message.tags == 'error' %}error{% else %}success{% endif %}">
@@ -29,13 +29,13 @@
                         {% endif %}
                     </div>
                 {% endfor %}
-                <button type="submit" class="login-button">SIGN UP</button>
+                <button type="submit" class="login-button">S'INSCRIRe</button>
             </form>
         </div>
         <div class="signup-section">
-            <h2 class="signup-title">Welcome Back!</h2>
-            <p class="signup-text">Entre tes détails personnels pour utiliser toutes les fonctionnalités du site.</p>
-            <a href="{% url 'accounts:login' %}" class="signup-button">SIGN IN</a>
+            <h2 class="signup-title">Bienvenu otaku!</h2>
+            <p class="signup-text">Entre tes détails personnels pour t'inscrire et utiliser toutes les fonctionnalités du site.</p>
+            <a href="{% url 'accounts:login' %}" class="signup-button">CONNEXION</a>
         </div>
     </div>
 </body>

@@ -11,7 +11,7 @@
     <div class="login-container">
         <!-- Section Connexion -->
         <div class="login-section">
-            <h2 class="login-title">Sign In</h2>
+            <h2 class="login-title">Connexion</h2>
             {% if messages %}
                 {% for message in messages %}
                     <div class="message {% if message.tags == 'error' %}error{% else %}success{% endif %}">
@@ -30,14 +30,14 @@
                     <input type="password" id="password" name="password" required>
                 </div>
                 <a href="#" class="forgot-password">Mot de passe oublié ?</a>
-                <button type="submit" class="login-button">SIGN IN</button>
+                <button type="submit" class="login-button">SE CONNECTER</button>
             </form>
         </div>
-        <!-- Section Inscription -->
+       
         <div class="signup-section">
-            <h2 class="signup-title">Hello, Friend!</h2>
-            <p class="signup-text">Inscris-toi avec tes détails personnels pour utiliser toutes les fonctionnalités du site.</p>
-            <a href="{% url 'accounts:register' %}" class="signup-button">SIGN UP</a>
+            <h2 class="signup-title">Content de te revoir otaku!</h2>
+            <p class="signup-text">Pas de compte? Inscris-toi avec tes détails personnels pour utiliser toutes les fonctionnalités du site.</p>
+            <a href="{% url 'accounts:register' %}" class="signup-button">INSCRIPTION</a>
         </div>
     </div>
 </body>
