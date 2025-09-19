@@ -1,4 +1,3 @@
-# accounts/admin.py
 from django.contrib import admin
 from .models import User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -12,7 +11,7 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('username', 'first_name', 'email', 'profile_picture')
         }),
         ('Mot de Passe', {
-            'fields': ('password',)  # Ajoute explicitement le champ password
+            'fields': ('password',)  
         }),
         ('Permissions', {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'role', 'groups', 'user_permissions')
@@ -21,6 +20,6 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('last_login', 'date_joined')
         }),
     )
-    # Pas besoin d'exclude ici, car password est géré par le widget spécial de Django
+    
 
 admin.site.register(User, UserAdmin)

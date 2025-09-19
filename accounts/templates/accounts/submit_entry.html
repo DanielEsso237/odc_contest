@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soumettre une Entrée - ODC Vote</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'accounts/css/modo_dashboard.css' %}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-section">
+            <h2>Soumettre une Entrée</h2>
+            <!-- Messages de succès ou erreur -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="login-button">Soumettre</button>
+            </form>
+            <a href="{% url 'accounts:home' %}" class="login-button">Retour</a>
+        </div>
+    </div>
+</body>
+</html>

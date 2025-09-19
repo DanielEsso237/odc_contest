@@ -5,15 +5,144 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tableau de Bord Modérateur - ODC Vote</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'accounts/css/login.css' %}">
+    <link rel="stylesheet" href="{% static 'accounts/css/modo_dashboard.css' %}">
+    <style>
+        .autocomplete-suggestions {
+            position: absolute;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 1000;
+            width: 100%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .autocomplete-suggestion {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .autocomplete-suggestion:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
 </head>
 <body>
     <div class="login-container">
         <div class="login-section">
-            <h2 class="login-title">Bienvenue, {{ user.username }} (Modérateur)</h2>
-            <p>Vous pouvez gérer les participants et les concours ici.</p>
+            <h2>Bienvenue, {{ user.username }} (Modérateur)</h2>
+
+            <!-- Messages de succès ou erreur -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Section Créer un Événement -->
+            <h3>Créer un Nouvel Événement</h3>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="title">Titre :</label>
+                    <input type="text" name="title" id="title" placeholder="ex. Miss ODC" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description :</label>
+                    <textarea name="description" id="description" placeholder="Description de l'événement" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="start_date">Date de début :</label>
+                    <input type="datetime-local" name="start_date" id="start_date" required>
+                </div>
+                <div class="form-group">
+                    <label for="end_date">Date de fin :</label>
+                    <input type="datetime-local" name="end_date" id="end_date" required>
+                </div>
+                <button type="submit" name="create_event" class="login-button">Créer l'Événement</button>
+            </form>
+
+            <!-- Section Enregistrer une Concurrente -->
+            <h3>Enregistrer une Concurrente</h3>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="event_id">Événement :</label>
+                    <select name="event_id" id="event_id" required>
+                        {% for event in events %}
+                            <option value="{{ event.id }}">{{ event.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group" id="username-group">
+                    <label for="username">Nom d'utilisateur de la concurrente :</label>
+                    <input type="text" name="username" id="username" placeholder="Commencez à taper..." required>
+                    <div class="autocomplete-suggestions" id="suggestions"></div>
+                </div>
+                <button type="submit" name="register_competitor" class="login-button">Enregistrer</button>
+            </form>
+
+            <!-- Section Soumissions en Attente -->
+            <h3>Soumissions en Attente</h3>
+            {% if submissions %}
+                <ul>
+                    {% for submission in submissions %}
+                        <li>
+                            {{ submission.competitor.user.username }} - {{ submission.trial.title }} 
+                            <form method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="submission_id" value="{{ submission.id }}">
+                                <button type="submit" name="publish_submission" class="login-button">Publier</button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>Aucune soumission en attente pour le moment.</p>
+            {% endif %}
+
+            <!-- Lien de Déconnexion -->
             <a href="{% url 'accounts:login' %}" class="login-button">Déconnexion</a>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const input = document.getElementById('username');
+            const suggestionsDiv = document.getElementById('suggestions');
+            const members = [
+                {% for member in members %}
+                    "{{ member.username }}",
+                {% endfor %}
+            ];
+
+            input.addEventListener('input', function() {
+                const query = input.value.toLowerCase();
+                suggestionsDiv.innerHTML = '';
+                if (query) {
+                    const filtered = members.filter(m => m.toLowerCase().includes(query));
+                    if (filtered.length > 0) {
+                        filtered.forEach(suggestion => {
+                            const div = document.createElement('div');
+                            div.className = 'autocomplete-suggestion';
+                            div.textContent = suggestion;
+                            div.addEventListener('click', function() {
+                                input.value = suggestion;
+                                suggestionsDiv.innerHTML = '';
+                            });
+                            suggestionsDiv.appendChild(div);
+                        });
+                    }
+                }
+            });
+
+            // Cacher les suggestions si on clique à l'extérieur
+            document.addEventListener('click', function(e) {
+                if (!input.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+                    suggestionsDiv.innerHTML = '';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
