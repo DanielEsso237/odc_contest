@@ -13,8 +13,6 @@ body {
     overflow-x: hidden;
 }
 
-
-
 .login-container {
     background: #ffffff;
     border-radius: 16px;
@@ -72,7 +70,7 @@ body {
     }
 }
 
-
+/* Effet subtil pour la section signup */
 .signup-section::before {
     content: '';
     position: absolute;
@@ -217,9 +215,9 @@ body {
 }
 
 .signup-button {
-    display: inline-block;
+    display: block; /* Changé de inline-block à block pour un centrage facile */
     padding: 12px 28px;
-    background: #ffffff; ;
+    background: #ffffff;
     color: #553c9a;
     text-align: center;
     text-decoration: none;
@@ -230,6 +228,8 @@ body {
     text-transform: uppercase;
     letter-spacing: 1px;
     animation: fadeIn 1s ease-out 0.9s both;
+    margin: 0 auto; /* Centrage horizontal */
+    max-width: 200px; /* Limite la largeur pour un meilleur rendu */
 }
 
 .signup-button:hover {
@@ -318,17 +318,24 @@ body {
         border-radius: 12px;
     }
     
-    .login-section, .signup-section {
+    .login-section,
+    .signup-section {
         padding: 25px 20px;
     }
     
-    .login-title, .signup-title {
+    .login-title,
+    .signup-title {
         font-size: 24px;
     }
     
     .signup-section {
         background-color: #6b46c1;
         color: #ffffff;
+    }
+    
+    .signup-button {
+        margin: 0 auto; /* Redéfini pour mobile si nécessaire */
+        display: block; /* Assure que le centrage fonctionne */
     }
 }
 
@@ -363,7 +370,8 @@ textarea {
 }
 
 /* Style pour les checkboxes et radio buttons */
-input[type="checkbox"], input[type="radio"] {
+input[type="checkbox"],
+input[type="radio"] {
     width: auto;
     margin-right: 8px;
 }
