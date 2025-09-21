@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ODC Contest - Accueil</title>
+    <title>{% block title %}ODC Vote - {% endblock %}</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'accounts/css/home.css' %}">
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
     <header class="header">
@@ -31,10 +32,10 @@
         </div>
     </header>
 
-    <!-- Contenu principal -->
     <main class="main-content">
-        <h2>Bienvenue, {{ user.username }} !</h2>
-        <p>Cette page est en cours de développement. Bientôt, tu pourras voir les événements, voter pour les soumissions, et plus encore !</p>
+        {% block content %}{% endblock %}
     </main>
+
+    {% block extra_js %}{% endblock %}
 </body>
 </html>
