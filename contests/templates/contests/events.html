@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ODC Vote - Événements</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'contests/css/events.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h2>Liste des Événements</h2>
+        <div class="event-list">
+            {% for event in events %}
+                <div class="event-card">
+                    <h3>{{ event.title }}</h3>
+                    <p>{{ event.description }}</p>
+                    <a href="?event_id={{ event.id }}" class="button">Voir les Épreuves</a>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if trials %}
+            <h2>Épreuves pour l'Événement Sélectionné</h2>
+            <div class="trial-list">
+                {% for trial in trials %}
+                    <div class="trial-card">
+                        <h3>{{ trial.title }}</h3>
+                        <p>{{ trial.description }}</p>
+                        <a href="?trial_id={{ trial.id }}" class="button">Voir les Soumissions</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if submissions %}
+            <h2>Soumissions Publiées pour l'Épreuve Sélectionnée</h2>
+            <div class="submission-feed">
+                {% for submission in submissions %}
+                    <div class="submission-post">
+                        <div class="post-header">
+                            <span class="competitor-name">{{ submission.competitor.user.username }}</span>
+                            <span class="post-date">{{ submission.published_at }}</span>
+                        </div>
+                        <div class="post-media">
+                            {% if submission.media %}
+                                {% if submission.media.name|lower|slice:"-4:" == '.mp4' or submission.media.name|lower|slice:"-4:" == '.mov' %}
+                                    <video controls>
+                                        <source src="{{ submission.media.url }}" type="video/mp4">
+                                    </video>
+                                {% else %}
+                                    <img src="{{ submission.media.url }}" alt="Soumission">
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                        <p class="post-description">{{ submission.description }}</p>
+                        <div class="post-actions">
+                            <button class="action-button">Voter</button>
+                            <button class="action-button">Commenter</button>
+                            <button class="action-button">Partager</button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
