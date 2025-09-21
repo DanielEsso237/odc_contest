@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Épreuves - {% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2>Épreuves pour l'Événement {{ event.title }}</h2>
+        <div class="trial-list">
+            {% if trials %}
+                {% for trial in trials %}
+                    <div class="trial-card">
+                        <h3>{{ trial.title }}</h3>
+                        <p>{{ trial.description }}</p>
+                        <a href="{% url 'contests:publications' trial.id %}" class="button">Voir les Publications</a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="no-content">Aucune épreuve disponible.</p>
+            {% endif %}
+        </div>
+        <a href="{% url 'contests:events' %}" class="button">Retour aux Épreuves</a>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+    {% load static %} <!-- Ajoute cette ligne pour charger static localement -->
+    <link rel="stylesheet" href="{% static 'contests/css/events.css' %}">
+{% endblock %}

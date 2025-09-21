@@ -1,0 +1,129 @@
+/* C:\Users\T.SHIGARAKI\Desktop\ODC_CONTEST\contests\static\contests\css\publications.css */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f8f9ff;
+    margin: 0;
+    padding: 20px;
+    color: #1c1e21;
+    display: flex;
+    justify-content: center; /* Centrer le contenu horizontalement */
+}
+
+.container {
+    width: 100%;
+    max-width: 700px;  /* un peu plus large pour l'effet "fil central" */
+    margin: 0 auto;
+}
+
+h2 {
+    text-align: center;
+    color: #6b46c1;
+    margin-bottom: 20px;
+}
+
+.publication-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center; /* Centre les posts dans le flux */
+}
+
+.publication-post {
+    width: 100%;
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.publication-post:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap; /* évite le chevauchement sur petit écran */
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #6b46c1;
+}
+
+.post-media img,
+.post-media video {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.post-description {
+    margin-bottom: 10px;
+    text-align: justify;
+}
+
+.post-actions {
+    display: flex;
+    flex-wrap: wrap; /* passe en ligne multiple sur petit écran */
+    gap: 10px;
+    justify-content: center; /* centre les boutons */
+}
+
+.action-button {
+    flex: 1 1 auto; /* boutons flexibles */
+    padding: 10px;
+    background-color: #e2e8f0;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    text-align: center;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.action-button:hover {
+    background-color: #6b46c1;
+    color: #ffffff;
+}
+
+.button {
+    display: block;
+    width: fit-content;
+    margin: 30px auto 0; /* centré */
+    padding: 12px 24px;
+    background-color: #6b46c1;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 6px;
+    text-align: center;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.button:hover {
+    background-color: #553c9a;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 0 10px;
+    }
+
+    .post-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    .action-button {
+        flex: 1 1 100%; /* prend toute la largeur sur mobile */
+    }
+}
