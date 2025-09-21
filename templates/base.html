@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ODC Vote - {% endblock %}</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'accounts/css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}"> 
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Bouton toggle fixe pour mobile -->
+    
     <button class="mobile-toggle-fixed" id="mobileToggleFixed" aria-label="Toggle navigation">
         <span></span>
         <span></span>
@@ -93,7 +93,6 @@
             let lastScrollTop = 0;
             
             function handleScroll() {
-                // Only apply auto-hide on mobile
                 if (window.innerWidth <= 768) {
                     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
                     
@@ -101,7 +100,6 @@
                     
                     scrollTimeout = setTimeout(() => {
                         if (scrollTop > lastScrollTop && scrollTop > 100) {
-                            // Scrolling down & past 100px
                             if (isExpanded) {
                                 isExpanded = false;
                                 header.classList.remove('expanded');
@@ -110,7 +108,6 @@
                                 mobileToggleFixed.classList.add('active');
                             }
                         } else if (scrollTop < lastScrollTop) {
-                            // Scrolling up
                             if (!isExpanded) {
                                 isExpanded = true;
                                 header.classList.remove('collapsed');
@@ -124,23 +121,17 @@
                 }
             }
 
-            // Add scroll listener
             window.addEventListener('scroll', handleScroll, { passive: true });
 
-            // Close menu when clicking outside (mobile)
             document.addEventListener('click', function(e) {
                 if (window.innerWidth <= 768 && isExpanded) {
                     if (!header.contains(e.target) && !mobileToggleFixed.contains(e.target)) {
-                        // Don't auto-collapse when clicking outside
-                        // This prevents accidental closing
                     }
                 }
             });
 
-            // Handle window resize
             window.addEventListener('resize', function() {
                 if (window.innerWidth > 768) {
-                    // Reset to expanded on desktop
                     isExpanded = true;
                     header.classList.remove('collapsed');
                     header.classList.add('expanded');
@@ -149,11 +140,9 @@
                 }
             });
 
-            // Smooth scroll behavior for navigation links
             const navLinks = document.querySelectorAll('.nav-link');
             navLinks.forEach(link => {
                 link.addEventListener('click', function(e) {
-                    // Close menu on mobile when clicking a nav link
                     if (window.innerWidth <= 768 && isExpanded) {
                         setTimeout(() => {
                             isExpanded = false;
@@ -166,7 +155,6 @@
                 });
             });
 
-            // Add loading animation
             header.style.opacity = '0';
             setTimeout(() => {
                 header.style.transition = 'opacity 0.5s ease';
@@ -174,7 +162,6 @@
             }, 100);
         });
 
-        // Add touch gesture support for mobile
         if (window.innerWidth <= 768) {
             let startY = 0;
             let currentY = 0;
@@ -190,7 +177,6 @@
             document.addEventListener('touchend', function(e) {
                 const diffY = startY - currentY;
                 
-                // Swipe up to hide header
                 if (diffY > 50 && window.pageYOffset > 100) {
                     const header = document.getElementById('mainHeader');
                     const mobileToggle = document.getElementById('mobileMenuToggle');
@@ -202,7 +188,6 @@
                     mobileToggleFixed.classList.add('active');
                 }
                 
-                // Swipe down to show header
                 if (diffY < -50) {
                     const header = document.getElementById('mainHeader');
                     const mobileToggle = document.getElementById('mobileMenuToggle');
