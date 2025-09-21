@@ -8,6 +8,13 @@ body {
     color: #1c1e21;
 }
 
+.no-content {
+    text-align: center;
+    color: #6b46c1;
+    font-style: italic;
+    padding: 20px;
+}
+
 .container {
     max-width: 800px;
     margin: 0 auto;

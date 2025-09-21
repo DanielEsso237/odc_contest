@@ -1,13 +1,8 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soumettre une Entrée - ODC Vote</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'accounts/css/modo_dashboard.css' %}">
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}Soumettre une Entrée - {% endblock %}
+
+{% block content %}
     <div class="login-container">
         <div class="login-section">
             <h2>Soumettre une Entrée</h2>
@@ -25,5 +20,9 @@
             <a href="{% url 'accounts:home' %}" class="login-button">Retour</a>
         </div>
     </div>
-</body>
-</html>
+{% endblock %}
+
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'accounts/css/submit_entry.css' %}">
+{% endblock %}

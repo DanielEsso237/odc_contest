@@ -12,4 +12,5 @@ urlpatterns = [
     path('contests/events/', views.events_view, name='events'),
     path('notifications/', views.notifications_view, name='notifications'),  
     path('profile/', views.profile_view, name='profile'),  
+    path('logout/', views.logout_view, name='logout'),
 ]
