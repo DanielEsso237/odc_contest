@@ -1,13 +1,8 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ODC Vote - Événements</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'contests/css/events.css' %}">
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}Événements - {% endblock %}
+
+{% block content %}
     <div class="container">
         <h2>Liste des Événements</h2>
         <div class="event-list">
@@ -20,5 +15,9 @@
             {% endfor %}
         </div>
     </div>
-</body>
-</html>
+{% endblock %}
+
+{% block extra_css %}
+    {% load static %} <!-- Ajoute cette ligne pour charger static localement -->
+    <link rel="stylesheet" href="{% static 'contests/css/events.css' %}">
+{% endblock %}

@@ -1,13 +1,8 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Publications pour {{ trial.title }} - ODC Vote</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'contests/css/publications.css' %}">
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}Publications - {% endblock %}
+
+{% block content %}
     <div class="container">
         <h2>Publications pour l'Épreuve {{ trial.title }}</h2>
         <div class="publication-feed">
@@ -39,5 +34,9 @@
         </div>
         <a href="{% url 'contests:trials' trial.event.id %}" class="button">Retour aux Épreuves</a>
     </div>
-</body>
-</html>
+{% endblock %}
+
+{% block extra_css %}
+    {% load static %} <!-- Ajoute cette ligne pour charger static localement -->
+    <link rel="stylesheet" href="{% static 'contests/css/publications.css' %}">
+{% endblock %}

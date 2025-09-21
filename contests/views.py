@@ -4,7 +4,7 @@ from .models import Event, Trial, Submission
 
 @login_required
 def events_view(request):
-    events = Event.objects.all().order_by('-start_date')  # Plus récents en premier
+    events = Event.objects.all().order_by('-start_date') 
     return render(request, 'contests/events.html', {'events': events})
 
 @login_required
