@@ -25,7 +25,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 INSTALLED_APPS = [
@@ -104,8 +104,11 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
+# settings.py
 STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'), 
     os.path.join(BASE_DIR, 'accounts/static'),
+    os.path.join(BASE_DIR, 'contests/static'),
 ]
 
 # Media files (for uploaded images like profile pictures)

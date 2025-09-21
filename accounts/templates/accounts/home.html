@@ -1,40 +1,15 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ODC Contest - Accueil</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'accounts/css/home.css' %}">
-</head>
-<body>
-    <header class="header">
-        <div class="header-left">
-            <h1>ODC CONTEST</h1>
-        </div>
-        <div class="header-center"></div>
-        <div class="header-right">
-            <nav>
-                <a href="{% url 'accounts:home' %}" class="nav-link">Accueil</a>
-                <a href="{% url 'contests:events' %}" class="nav-link">Événements</a>
-                <a href="{% url 'accounts:notifications' %}" class="nav-link">Notifications</a>
-            </nav>
-            <div class="profile-info">
-                {% if user.profile_picture %}
-                    <img src="{{ user.profile_picture.url }}" alt="Photo de profil" class="profile-pic">
-                {% else %}
-                    <div class="profile-pic placeholder">?</div>
-                {% endif %}
-                <span class="username">{{ user.username }}</span>
-            </div>
-            <a href="{% url 'accounts:login' %}" class="nav-link">Déconnexion</a>
-        </div>
-    </header>
+{% extends 'base.html' %}
 
-    <!-- Contenu principal -->
+{% block title %}Accueil - {% endblock %}
+
+{% block content %}
     <main class="main-content">
         <h2>Bienvenue, {{ user.username }} !</h2>
         <p>Cette page est en cours de développement. Bientôt, tu pourras voir les événements, voter pour les soumissions, et plus encore !</p>
     </main>
-</body>
-</html>
+{% endblock %}
+
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'accounts/css/home.css' %}">
+{% endblock %}

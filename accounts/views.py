@@ -1,12 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .forms import UserRegistrationForm
 from contests.models import Event, Trial, Competitor, Submission
 from accounts.models import User
 from django import forms
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+
 
 class SubmissionForm(forms.ModelForm):
     class Meta:
@@ -15,6 +14,13 @@ class SubmissionForm(forms.ModelForm):
         widgets = {
             'trial': forms.Select(attrs={'class': 'form-control'}),
         }
+
+    def __init__(self, competitor, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if competitor and hasattr(competitor, 'event'):
+            self.fields['trial'].queryset = Trial.objects.filter(event=competitor.event)
+        else:
+            self.fields['trial'].queryset = Trial.objects.none()  
 
 @login_required
 def submit_entry(request):
@@ -25,7 +31,7 @@ def submit_entry(request):
     trials = Trial.objects.filter(event=competitor.event)
 
     if request.method == 'POST':
-        form = SubmissionForm(request.POST, request.FILES)
+        form = SubmissionForm(competitor, request.POST, request.FILES)
         if form.is_valid():
             trial = form.cleaned_data['trial']
             if Submission.objects.filter(competitor=competitor, trial=trial).exists():
@@ -39,8 +45,9 @@ def submit_entry(request):
         else:
             messages.error(request, "Erreur dans la soumission. Vérifie tes données.")
     else:
-        form = SubmissionForm(initial={'trial': trials.first().id if trials.exists() else None})
+        form = SubmissionForm(competitor=competitor)  
     
+    print(f"Rendering submit_entry with trials: {trials}") 
     return render(request, 'accounts/submit_entry.html', {'form': form, 'trials': trials})
 
 def login_view(request):
@@ -76,13 +83,19 @@ def register_view(request):
         form = UserRegistrationForm()
     return render(request, 'accounts/register.html', {'form': form})
 
+
+def logout_view(request):
+    logout(request)
+    messages.success(request, "Déconnexion réussie !")
+    return redirect('accounts:login')
+
 @login_required
 def modo_dashboard(request):
     if not request.user.is_authenticated or request.user.role.lower() != 'modo':
         return redirect('accounts:login')
     
     event_id = request.GET.get('event_id')
-    trial_id = request.GET.get('trial_id')
+    
     
     if request.method == 'POST':
         if 'create_event' in request.POST:

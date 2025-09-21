@@ -1,23 +1,363 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Événements - {% endblock %}
+{% block title %}Événements{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'contests/css/events.css' %}">
+<style>
+/* Styles additionnels spécifiques à cette page */
+.events-header {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.events-subtitle {
+    color: #64748b;
+    font-size: 18px;
+    font-weight: 400;
+    margin-top: 10px;
+    margin-bottom: 0;
+}
+
+.events-stats {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 30px 0;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    padding: 20px 25px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(107, 70, 193, 0.08);
+    border: 1px solid rgba(107, 70, 193, 0.1);
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+.stat-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(107, 70, 193, 0.12);
+}
+
+.stat-number {
+    font-size: 28px;
+    font-weight: 700;
+    color: #6b46c1;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.event-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 15px;
+}
+
+.status-active {
+    background: linear-gradient(135deg, #dcfdf4 0%, #bbf7d0 100%);
+    color: #059669;
+    border: 1px solid #a7f3d0;
+}
+
+.status-upcoming {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #d97706;
+    border: 1px solid #fcd34d;
+}
+
+.status-ended {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    color: #475569;
+    border: 1px solid #cbd5e0;
+}
+
+.event-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.event-date {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.event-participants {
+    color: #6b46c1;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* Animation pour les cartes */
+@keyframes cardAppear {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.event-card {
+    animation: cardAppear 0.6s ease-out both;
+}
+
+.event-card:nth-child(1) { animation-delay: 0.1s; }
+.event-card:nth-child(2) { animation-delay: 0.2s; }
+.event-card:nth-child(3) { animation-delay: 0.3s; }
+.event-card:nth-child(4) { animation-delay: 0.4s; }
+
+@media (max-width: 768px) {
+    .events-stats {
+        gap: 15px;
+        margin: 20px 0;
+    }
+    
+    .stat-item {
+        padding: 15px 20px;
+        min-width: 100px;
+    }
+    
+    .stat-number {
+        font-size: 24px;
+    }
+    
+    .event-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .events-subtitle {
+        font-size: 16px;
+    }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h2>Liste des Événements</h2>
+<div class="container">
+    <div class="events-header">
+        <h2>Événements ODC Contest</h2>
+        <p class="events-subtitle">Découvrez et participez aux concours créatifs</p>
+    </div>
+    
+    {% if events %}
+        <!-- Statistiques des événements -->
+        <div class="events-stats">
+            <div class="stat-item">
+                <span class="stat-number">{{ events|length }}</span>
+                <span class="stat-label">Événement{{ events|length|pluralize }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ active_events_count|default:0 }}</span>
+                <span class="stat-label">Actif{{ active_events_count|default:0|pluralize }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ total_participants|default:0 }}</span>
+                <span class="stat-label">Participant{{ total_participants|default:0|pluralize }}</span>
+            </div>
+        </div>
+        
+        <!-- Liste des événements -->
         <div class="event-list">
             {% for event in events %}
                 <div class="event-card">
+                    <!-- Statut de l'événement (optionnel) -->
+                    {% comment %}
+                    <div class="event-status status-active">
+                        🟢 En cours
+                    </div>
+                    {% endcomment %}
+                    
                     <h3>{{ event.title }}</h3>
-                    <p>{{ event.description }}</p>
-                    <a href="{% url 'contests:trials' event.id %}" class="button">Voir les Épreuves</a>
+                    <p>{{ event.description|default:"Description à venir..." }}</p>
+                    
+                    <!-- Méta-informations (optionnel) -->
+                    <div class="event-meta">
+                        <span class="event-date">
+                            {% if event.start_date %}
+                                📅 {{ event.start_date|date:"d M Y" }}
+                            {% else %}
+                                📅 Date à définir
+                            {% endif %}
+                        </span>
+                        <span class="event-participants">
+                            👥 {{ event.participants_count|default:0 }} participant{{ event.participants_count|default:0|pluralize }}
+                        </span>
+                    </div>
+                    
+                    <a href="{% url 'contests:trials' event.id %}" class="button">
+                        🏆 Voir les Épreuves
+                    </a>
                 </div>
             {% endfor %}
         </div>
-    </div>
-{% endblock %}
+    {% else %}
+        <div class="no-content">
+            <strong>Aucun événement disponible pour le moment</strong>
+            <br>
+            <small>De nouveaux événements seront bientôt disponibles. Revenez régulièrement !</small>
+        </div>
+    {% endif %}
+</div>
 
-{% block extra_css %}
-    {% load static %} <!-- Ajoute cette ligne pour charger static localement -->
-    <link rel="stylesheet" href="{% static 'contests/css/events.css' %}">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation séquentielle des cartes
+    const eventCards = document.querySelectorAll('.event-card');
+    
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const cardObserver = new IntersectionObserver(function(entries) {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0) scale(1)';
+                }, index * 100);
+                cardObserver.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+    
+    eventCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px) scale(0.9)';
+        card.style.transition = 'all 0.6s ease-out';
+        cardObserver.observe(card);
+    });
+    
+    // Effet de hover amélioré
+    eventCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+    
+    // Animation des statistiques
+    const statNumbers = document.querySelectorAll('.stat-number');
+    
+    function animateNumbers() {
+        statNumbers.forEach(stat => {
+            const finalNumber = parseInt(stat.textContent);
+            const duration = 1500;
+            const startTime = performance.now();
+            
+            function updateNumber(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing function
+                const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+                const currentNumber = Math.floor(finalNumber * easeOutQuart);
+                
+                stat.textContent = currentNumber;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateNumber);
+                } else {
+                    stat.textContent = finalNumber;
+                }
+            }
+            
+            requestAnimationFrame(updateNumber);
+        });
+    }
+    
+    // Observer pour déclencher l'animation des stats
+    const statsSection = document.querySelector('.events-stats');
+    if (statsSection) {
+        const statsObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(animateNumbers, 300);
+                    statsObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        statsObserver.observe(statsSection);
+    }
+    
+    // Gestion des boutons
+    const eventButtons = document.querySelectorAll('.button');
+    
+    eventButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            // Effet de ripple
+            const ripple = document.createElement('div');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            
+            ripple.style.position = 'absolute';
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+            ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+            ripple.style.background = 'rgba(255, 255, 255, 0.6)';
+            ripple.style.borderRadius = '50%';
+            ripple.style.pointerEvents = 'none';
+            ripple.style.transform = 'scale(0)';
+            ripple.style.animation = 'ripple 0.6s linear';
+            
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+    
+    // CSS pour l'effet ripple
+    if (!document.querySelector('#ripple-style')) {
+        const style = document.createElement('style');
+        style.id = 'ripple-style';
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(2);
+                    opacity: 0;
+                }
+            }
+            .button {
+                position: relative;
+                overflow: hidden;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+});
+</script>
 {% endblock %}
