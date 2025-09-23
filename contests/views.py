@@ -1,4 +1,3 @@
-
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -149,13 +148,18 @@ def manage_submission_detail(request, submission_id):
         return redirect('accounts:home')
     
     if request.method == 'POST':
-        moderator_text = request.POST.get('moderator_text', '')
-        submission.moderator_text = moderator_text
-        submission.is_published = True
-        submission.published_by = request.user
-        submission.save()
-        messages.success(request, "Soumission publiée avec succès !")
-        return redirect('contests:publications', trial_id=trial.id)
+        if 'publish' in request.POST:
+            moderator_text = request.POST.get('moderator_text', '')
+            submission.moderator_text = moderator_text
+            submission.is_published = True
+            submission.published_by = request.user
+            submission.save()
+            messages.success(request, "Soumission publiée avec succès !")
+            return redirect('contests:publications', trial_id=trial.id)
+        elif 'reject' in request.POST:
+            submission.delete()
+            messages.success(request, "Soumission rejetée et supprimée !")
+            return redirect('contests:manage_trial_submissions', trial_id=trial.id)
 
     return render(request, 'contests/manage_submission_detail.html', {
         'submission': submission,

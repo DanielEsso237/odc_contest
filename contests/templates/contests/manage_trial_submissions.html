@@ -1,4 +1,3 @@
-<!-- C:\Users\T.SHIGARAKI\Desktop\ODC_CONTEST\contests\templates\contests\manage_trial_submissions.html -->
 {% extends 'base.html' %}
 
 {% block title %}{{ trial.title }} - Soumissions - {% endblock %}
@@ -21,17 +20,8 @@
                 <div class="submission-card">
                     <p><strong>Candidat :</strong> {{ submission.competitor.user.username }}</p>
                     <p><strong>Texte :</strong> {{ submission.description }}</p>
-                    {% for media in submission.submissionmedia_set.all %}
-                        {% if media.media.url|slice:"-4:" == ".jpg" or media.media.url|slice:"-4:" == ".png" or media.media.url|slice:"-5:" == ".jpeg" %}
-                            <img src="{{ media.media.url }}" alt="Media" class="submission-media">
-                        {% elif media.media.url|slice:"-4:" == ".mp4" or media.media.url|slice:"-4:" == ".mov" %}
-                            <video controls class="submission-media">
-                                <source src="{{ media.media.url }}" type="video/mp4">
-                                Votre navigateur ne supporte pas la vidéo.
-                            </video>
-                        {% endif %}
-                    {% endfor %}
                     <a href="{% url 'contests:manage_submission_detail' submission.id %}" class="view-details-button">Voir</a>
+                    <a href="{% url 'contests:publications' trial.id %}" class="view-publication-button">Voir les Publications</a>
                 </div>
             {% empty %}
                 <p>Aucune soumission en attente.</p>
@@ -43,19 +33,4 @@
 {% block extra_css %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'contests/css/manage_trial_submissions.css' %}">
-    <style>
-        .view-details-button {
-            padding: 5px 10px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            margin-top: 10px;
-            display: inline-block;
-        }
-        .view-details-button:hover {
-            background-color: #0056b3;
-        }
-    </style>
 {% endblock %}
