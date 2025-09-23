@@ -1,10 +1,11 @@
-from django.shortcuts import render, redirect, get_object_or_404
+# C:\Users\T.SHIGARAKI\Desktop\ODC_CONTEST\accounts\views.py
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from contests.models import Event, Trial, Competitor, Submission, SubmissionMedia
 from accounts.models import User
 from django import forms
-from django.contrib.auth.decorators import login_required
 
 class MultipleFileInput(forms.FileInput):
     def __init__(self, attrs=None):
@@ -104,7 +105,10 @@ def login_view(request):
         if user is not None:
             login(request, user)
             messages.success(request, "Connexion réussie !")
-            return redirect('accounts:home')  
+            if user.is_superuser:
+                return redirect('/admin/')  # Priorité à l'admin Django pour superuser
+            else:
+                return redirect('accounts:home')  # Tous les autres (membres, participants, modos) vers home.html
         else:
             messages.error(request, "Email ou mot de passe incorrect.")
     return render(request, 'accounts/login.html')

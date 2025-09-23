@@ -101,3 +101,54 @@ def manage_events(request):
         'submissions': submissions,
         'competitors': competitors
     })
+
+@login_required
+def manage_event_detail(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    if request.user.role.lower() != 'modo' or event.created_by != request.user:
+        return redirect('accounts:home')
+    
+    if request.method == 'POST' and 'create_trial' in request.POST:
+        title = request.POST['title']
+        description = request.POST['description']
+        order = Trial.objects.filter(event=event).count() + 1
+        Trial.objects.create(
+            event=event,
+            title=title,
+            description=description,
+            order=order
+        )
+        messages.success(request, "Épreuve créée !")
+        return redirect('contests:manage_event_detail', event_id=event.id)
+
+    trials = Trial.objects.filter(event=event).order_by('order')
+    competitors = Competitor.objects.filter(event=event)
+    return render(request, 'contests/manage_event_detail.html', {
+        'event': event,
+        'trials': trials,
+        'competitors': competitors
+    })
+
+@login_required
+def manage_trial_submissions(request, trial_id):
+    trial = get_object_or_404(Trial, id=trial_id)
+    if request.user.role.lower() != 'modo' or trial.event.created_by != request.user:
+        return redirect('accounts:home')
+    
+    if request.method == 'POST' and 'publish_submission' in request.POST:
+        submission_id = request.POST['submission_id']
+        try:
+            submission = Submission.objects.get(id=submission_id)
+            submission.is_published = True
+            submission.published_by = request.user
+            submission.save()
+            messages.success(request, "Soumission publiée !")
+            return redirect('contests:manage_trial_submissions', trial_id=trial.id)
+        except Submission.DoesNotExist:
+            messages.error(request, "Soumission non trouvée.")
+
+    submissions = Submission.objects.filter(trial=trial, is_published=False)
+    return render(request, 'contests/manage_trial_submissions.html', {
+        'trial': trial,
+        'submissions': submissions
+    })

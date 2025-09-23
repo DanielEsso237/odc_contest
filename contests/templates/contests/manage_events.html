@@ -1,4 +1,3 @@
-<!-- C:\Users\T.SHIGARAKI\Desktop\ODC_CONTEST\contests\templates\contests\manage_events.html -->
 {% extends 'base.html' %}
 
 {% block title %}Gérer les Événements - {% endblock %}
@@ -21,7 +20,7 @@
                 <div class="event-card">
                     <h3>{{ event.title }}</h3>
                     <p><strong>Date :</strong> {{ event.start_date }} - {{ event.end_date }}</p>
-                    <a href="#" class="manage-button">Gérer</a> <!-- Lien placeholder, à configurer plus tard -->
+                    <a href="{% url 'contests:manage_event_detail' event.id %}" class="manage-button">Gérer</a>
                 </div>
             {% empty %}
                 <p>Aucun événement créé.</p>

@@ -1,3 +1,4 @@
+<!-- C:\Users\T.SHIGARAKI\Desktop\ODC_CONTEST\contests\templates\contests\trials.html -->
 {% extends 'base.html' %}
 
 {% block title %}Épreuves - {% endblock %}
@@ -11,18 +12,42 @@
                     <div class="trial-card">
                         <h3>{{ trial.title }}</h3>
                         <p>{{ trial.description }}</p>
-                        <a href="{% url 'contests:publications' trial.id %}" class="button">Voir les Publications</a>
+                        <div class="trial-actions">
+                            <a href="{% url 'contests:publications' trial.id %}" class="button">Voir les Publications</a>
+                            {% if user.role|lower == 'modo' %}
+                                <button class="button add-trial-button">Ajouter une épreuve</button>
+                                <button class="button manage-submissions-button">Gérer les soumissions</button>
+                            {% endif %}
+                        </div>
                     </div>
                 {% endfor %}
             {% else %}
                 <p class="no-content">Aucune épreuve disponible.</p>
             {% endif %}
         </div>
-        <a href="{% url 'contests:events' %}" class="button">Retour aux Épreuves</a>
+        <a href="{% url 'contests:events' %}" class="button">Retour aux Événements</a>
     </div>
 {% endblock %}
 
 {% block extra_css %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'contests/css/events.css' %}">
+    <style>
+        .trial-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .add-trial-button, .manage-submissions-button {
+            padding: 8px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .add-trial-button:hover, .manage-submissions-button:hover {
+            background-color: #218838;
+        }
+    </style>
 {% endblock %}

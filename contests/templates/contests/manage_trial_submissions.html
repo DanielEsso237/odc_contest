@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ trial.title }} - Soumissions - {% endblock %}
+
+{% block content %}
+    <main class="main-content">
+        <div class="dashboard-header">
+            <h2>{{ trial.title }} - Soumissions en attente de validation</h2>
+            <a href="{% url 'contests:manage_event_detail' trial.event.id %}" class="back-button">Retour</a>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="submissions-list">
+            {% for submission in submissions %}
+                <div class="submission-card">
+                    <p><strong>Candidat :</strong> {{ submission.competitor.user.username }}</p>
+                    <p><strong>Texte :</strong> {{ submission.description }}</p>
+                    {% for media in submission.submissionmedia_set.all %}
+                        {% if media.media.url|slice:"-4:" == ".jpg" or media.media.url|slice:"-4:" == ".png" or media.media.url|slice:"-5:" == ".jpeg" %}
+                            <img src="{{ media.media.url }}" alt="Media" class="submission-media">
+                        {% elif media.media.url|slice:"-4:" == ".mp4" or media.media.url|slice:"-4:" == ".mov" %}
+                            <video controls class="submission-media">
+                                <source src="{{ media.media.url }}" type="video/mp4">
+                                Votre navigateur ne supporte pas la vidéo.
+                            </video>
+                        {% endif %}
+                    {% endfor %}
+                    <form method="post" action="{% url 'contests:manage_trial_submissions' trial.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="submission_id" value="{{ submission.id }}">
+                        <button type="submit" name="publish_submission" class="publish-button">Publier</button>
+                        <a href="{% url 'contests:publications' trial.id %}" class="view-publication-button">Voir la publication</a>
+                    </form>
+                </div>
+            {% empty %}
+                <p>Aucune soumission en attente.</p>
+            {% endfor %}
+        </div>
+    </main>
+{% endblock %}
+
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'contests/css/manage_trial_submissions.css' %}">
+{% endblock %}
