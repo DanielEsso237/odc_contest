@@ -38,7 +38,7 @@ class Competitor(models.Model):
     class Meta:
         verbose_name = "Concurrente"
         verbose_name_plural = "Concurrentes"
-        unique_together = ('user', 'event')  
+        unique_together = ('user', 'event')
 
     def __str__(self):
         return f"{self.user.username} - {self.event.title}"
@@ -46,11 +46,25 @@ class Competitor(models.Model):
 class Submission(models.Model):
     competitor = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_name='submissions', verbose_name="Concurrente")
     trial = models.ForeignKey(Trial, on_delete=models.CASCADE, related_name='submissions', verbose_name="Épreuve")
-    media = models.FileField(upload_to='submissions/', verbose_name="Média (photo ou vidéo)", help_text="Téléchargez une photo (.jpg, .jpeg, .png) ou une vidéo (.mp4, .mov)")
     description = models.TextField(verbose_name="Description")
     published_by = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'modo'}, related_name='published_submissions', verbose_name="Publié par", null=True, blank=True)
     published_at = models.DateTimeField(auto_now_add=True, verbose_name="Date de publication")
     is_published = models.BooleanField(default=False, verbose_name="Publié ?")
+    
+    # IMPORTANT: Le champ 'media' a été supprimé d'ici
+
+    class Meta:
+        verbose_name = "Soumission"
+        verbose_name_plural = "Soumissions"
+        unique_together = ('competitor', 'trial')
+
+    def __str__(self):
+        return f"{self.competitor.user.username} - {self.trial.title}"
+
+class SubmissionMedia(models.Model):
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE, related_name='media_files', verbose_name="Soumission")
+    media = models.FileField(upload_to='submissions/', verbose_name="Média (photo ou vidéo)", help_text="Téléchargez une photo (.jpg, .jpeg, .png) ou une vidéo (.mp4, .mov)")
+    order = models.PositiveIntegerField(default=0, verbose_name="Ordre d'affichage")
 
     def clean(self):
         import os
@@ -62,12 +76,20 @@ class Submission(models.Model):
                 raise ValidationError("Seules les extensions .jpg, .jpeg, .png, .mp4 et .mov sont autorisées.")
 
     class Meta:
-        verbose_name = "Soumission"
-        verbose_name_plural = "Soumissions"
-        unique_together = ('competitor', 'trial') 
+        verbose_name = "Média de soumission"
+        verbose_name_plural = "Médias de soumission"
+        ordering = ['order']
 
     def __str__(self):
-        return f"{self.competitor.user.username} - {self.trial.title}"
+        return f"Média pour {self.submission}"
+
+    def is_video(self):
+        """Vérifie si le fichier est une vidéo"""
+        if self.media:
+            import os
+            file_extension = os.path.splitext(self.media.name)[1].lower()
+            return file_extension in ['.mp4', '.mov']
+        return False
 
 class Vote(models.Model):
     member = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role__in': ['member', 'participant']}, related_name='votes', verbose_name="Membre votant")
@@ -77,7 +99,7 @@ class Vote(models.Model):
     class Meta:
         verbose_name = "Vote"
         verbose_name_plural = "Votes"
-        unique_together = ('member', 'submission')  
+        unique_together = ('member', 'submission')
 
     def __str__(self):
         return f"{self.member.username} a voté pour {self.submission.competitor.user.username}"

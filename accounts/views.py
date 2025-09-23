@@ -1,18 +1,37 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from contests.models import Event, Trial, Competitor, Submission
+from contests.models import Event, Trial, Competitor, Submission, SubmissionMedia
 from accounts.models import User
 from django import forms
 from django.contrib.auth.decorators import login_required
 
 
+class MultipleFileInput(forms.FileInput):
+    def __init__(self, attrs=None):
+        super().__init__(attrs)
+        if attrs is None:
+            attrs = {}
+        attrs.update({'multiple': True})
+        self.attrs = attrs
+
+
 class SubmissionForm(forms.ModelForm):
+    media_files = forms.FileField(
+        widget=MultipleFileInput(attrs={
+            'accept': '.jpg,.jpeg,.png,.mp4,.mov',
+            'class': 'form-control'
+        }),
+        help_text="Sélectionnez une ou plusieurs photos/vidéos (.jpg, .jpeg, .png, .mp4, .mov)",
+        required=True
+    )
+    
     class Meta:
         model = Submission
-        fields = ['trial', 'media', 'description']
+        fields = ['trial', 'description']
         widgets = {
             'trial': forms.Select(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
         }
 
     def __init__(self, competitor, *args, **kwargs):
@@ -20,7 +39,7 @@ class SubmissionForm(forms.ModelForm):
         if competitor and hasattr(competitor, 'event'):
             self.fields['trial'].queryset = Trial.objects.filter(event=competitor.event)
         else:
-            self.fields['trial'].queryset = Trial.objects.none()  
+            self.fields['trial'].queryset = Trial.objects.none()
 
 @login_required
 def submit_entry(request):
@@ -34,20 +53,56 @@ def submit_entry(request):
         form = SubmissionForm(competitor, request.POST, request.FILES)
         if form.is_valid():
             trial = form.cleaned_data['trial']
+            
+        
             if Submission.objects.filter(competitor=competitor, trial=trial).exists():
                 messages.error(request, "Vous avez déjà soumis une entrée pour cette épreuve. Contactez un modérateur si nécessaire.")
                 return redirect('accounts:submit_entry')
+            
+            
+            files = request.FILES.getlist('media_files')
+            if not files:
+                messages.error(request, "Veuillez sélectionner au moins un fichier média.")
+                return render(request, 'accounts/submit_entry.html', {'form': form, 'trials': trials})
+            
+            
             submission = form.save(commit=False)
             submission.competitor = competitor
             submission.save()
-            messages.success(request, "Soumission envoyée avec succès ! Attends la validation du modérateur.")
-            return redirect('accounts:home')
+            
+            
+            valid_files_count = 0
+            for i, file in enumerate(files):
+                
+                import os
+                file_extension = os.path.splitext(file.name)[1].lower()
+                valid_extensions = ['.jpg', '.jpeg', '.png', '.mp4', '.mov']
+                
+                if file_extension not in valid_extensions:
+                    messages.warning(request, f"Le fichier {file.name} a été ignoré (extension non autorisée).")
+                    continue
+                
+            
+                media_obj = SubmissionMedia.objects.create(
+                    submission=submission,
+                    media=file,
+                    order=i
+                )
+                valid_files_count += 1
+            
+            if valid_files_count > 0:
+                messages.success(request, f"Soumission envoyée avec succès avec {valid_files_count} fichier(s) ! Attends la validation du modérateur.")
+                return redirect('accounts:home')
+            else:
+               
+                submission.delete()
+                messages.error(request, "Aucun fichier valide n'a été trouvé. Veuillez vérifier les formats autorisés.")
+                
         else:
             messages.error(request, "Erreur dans la soumission. Vérifie tes données.")
     else:
         form = SubmissionForm(competitor=competitor)  
     
-    print(f"Rendering submit_entry with trials: {trials}") 
     return render(request, 'accounts/submit_entry.html', {'form': form, 'trials': trials})
 
 def login_view(request):
