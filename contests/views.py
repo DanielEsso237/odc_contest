@@ -1,6 +1,9 @@
-from django.shortcuts import render, get_object_or_404
+# C:\Users\T.SHIGARAKI\Desktop\ODC_CONTEST\contests\views.py
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Event, Trial, Submission
+from django.contrib import messages
+from .models import Event, Trial, Competitor, Submission, SubmissionMedia
+from accounts.models import User
 
 @login_required
 def events_view(request):
@@ -18,3 +21,83 @@ def publications_view(request, trial_id):
     trial = get_object_or_404(Trial, id=trial_id)
     submissions = Submission.objects.filter(trial=trial, is_published=True).order_by('-published_at')
     return render(request, 'contests/publications.html', {'trial': trial, 'submissions': submissions})
+
+@login_required
+def manage_events(request):
+    if request.user.role.lower() != 'modo':
+        return redirect('accounts:home')
+    
+    if request.method == 'POST':
+        if 'create_event' in request.POST:
+            title = request.POST['title']
+            description = request.POST['description']
+            start_date = request.POST['start_date']
+            end_date = request.POST['end_date']
+            Event.objects.create(
+                title=title,
+                description=description,
+                start_date=start_date,
+                end_date=end_date,
+                created_by=request.user
+            )
+            messages.success(request, "Événement créé !")
+        elif 'create_trial' in request.POST:
+            event_id = request.POST['event_id']
+            title = request.POST['title']
+            description = request.POST['description']
+            order = Trial.objects.filter(event_id=event_id).count() + 1
+            Trial.objects.create(
+                event_id=event_id,
+                title=title,
+                description=description,
+                order=order
+            )
+            messages.success(request, "Épreuve créée !")
+        elif 'register_competitor' in request.POST:
+            username = request.POST['username']
+            event_id = request.POST['event_id']
+            try:
+                user = User.objects.get(username=username, role='member')
+                user.role = 'participant'
+                user.save()
+                event = Event.objects.get(id=event_id)
+                Competitor.objects.get_or_create(user=user, event=event, registered_by=request.user)
+                messages.success(request, f"{username} transformé en participant et enregistré !")
+            except User.DoesNotExist:
+                messages.error(request, f"Utilisateur '{username}' non trouvé ou n'a pas le rôle 'member'.")
+            except Event.DoesNotExist:
+                messages.error(request, "Événement non trouvé.")
+        elif 'delete_competitor' in request.POST:
+            competitor_id = request.POST['competitor_id']
+            try:
+                competitor = Competitor.objects.get(id=competitor_id)
+                user = competitor.user
+                user.role = 'member'
+                user.save()
+                competitor.delete()
+                messages.success(request, "Concurrente supprimée !")
+            except Competitor.DoesNotExist:
+                messages.error(request, "Concurrente non trouvée.")
+        elif 'publish_submission' in request.POST:
+            submission_id = request.POST['submission_id']
+            try:
+                submission = Submission.objects.get(id=submission_id)
+                submission.is_published = True
+                submission.published_by = request.user
+                submission.save()
+                messages.success(request, "Soumission publiée !")
+            except Submission.DoesNotExist:
+                messages.error(request, "Soumission non trouvée.")
+    
+    events = Event.objects.filter(created_by=request.user)
+    members = User.objects.filter(role='member')
+    submissions = Submission.objects.filter(is_published=False)
+    competitors = Competitor.objects.all()
+
+    return render(request, 'contests/manage_events.html', {
+        'user': request.user,
+        'events': events,
+        'members': members,
+        'submissions': submissions,
+        'competitors': competitors
+    })

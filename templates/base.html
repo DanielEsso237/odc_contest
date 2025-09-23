@@ -1,3 +1,4 @@
+<!-- C:\Users\T.SHIGARAKI\Desktop\ODC_CONTEST\templates\base.html -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -34,6 +35,9 @@
                 {% if user.role|lower == 'participant' %}
                     <a href="{% url 'accounts:submit_entry' %}" class="nav-link">Soumettre</a>
                 {% endif %}
+                {% if user.role|lower == 'modo' %}
+                    <a href="{% url 'contests:manage_events' %}" class="nav-link">Gérer les événements</a>
+                {% endif %}
             </nav>
             <div class="profile-info">
                 {% if user.profile_picture %}
@@ -61,7 +65,6 @@
             let isExpanded = true;
             let scrollTimeout;
 
-            
             function toggleHeader() {
                 isExpanded = !isExpanded;
                 
@@ -73,12 +76,10 @@
                     header.classList.add('collapsed');
                 }
                 
-                
                 mobileToggle.classList.toggle('active');
                 mobileToggleFixed.classList.toggle('active');
             }
 
-            
             mobileToggle.addEventListener('click', function(e) {
                 e.stopPropagation();
                 toggleHeader();
@@ -89,7 +90,6 @@
                 toggleHeader();
             });
 
-           
             let lastScrollTop = 0;
             
             function handleScroll() {
