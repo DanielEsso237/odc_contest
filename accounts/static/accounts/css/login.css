@@ -70,7 +70,6 @@ body {
     }
 }
 
-/* Effet subtil pour la section signup */
 .signup-section::before {
     content: '';
     position: absolute;

@@ -229,7 +229,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Animation séquentielle des cartes
+    
     const eventCards = document.querySelectorAll('.event-card');
     
     const observerOptions = {
@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cardObserver.observe(card);
     });
     
-    // Effet de hover amélioré
+   
     eventCards.forEach(card => {
         card.addEventListener('mouseenter', function() {
             this.style.transform = 'translateY(-8px)';
@@ -267,7 +267,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Animation des statistiques
+   
     const statNumbers = document.querySelectorAll('.stat-number');
     
     function animateNumbers() {
@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const elapsed = currentTime - startTime;
                 const progress = Math.min(elapsed / duration, 1);
                 
-                // Easing function
+              
                 const easeOutQuart = 1 - Math.pow(1 - progress, 4);
                 const currentNumber = Math.floor(finalNumber * easeOutQuart);
                 
@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Observer pour déclencher l'animation des stats
+    
     const statsSection = document.querySelector('.events-stats');
     if (statsSection) {
         const statsObserver = new IntersectionObserver(function(entries) {
@@ -312,12 +312,12 @@ document.addEventListener('DOMContentLoaded', function() {
         statsObserver.observe(statsSection);
     }
     
-    // Gestion des boutons
+
     const eventButtons = document.querySelectorAll('.button');
     
     eventButtons.forEach(button => {
         button.addEventListener('click', function(e) {
-            // Effet de ripple
+          
             const ripple = document.createElement('div');
             const rect = this.getBoundingClientRect();
             const size = Math.max(rect.width, rect.height);
@@ -340,7 +340,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // CSS pour l'effet ripple
+    
     if (!document.querySelector('#ripple-style')) {
         const style = document.createElement('style');
         style.id = 'ripple-style';

@@ -18,7 +18,7 @@
 
     <header class="header expanded" id="mainHeader">
         <div class="header-left">
-            <h1>ODC CONTEST</h1>
+            <h1>⛩️ODC CONTEST</h1>
             <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
                 <span></span>
                 <span></span>
@@ -61,7 +61,7 @@
             let isExpanded = true;
             let scrollTimeout;
 
-            // Function to toggle header
+            
             function toggleHeader() {
                 isExpanded = !isExpanded;
                 
@@ -73,12 +73,12 @@
                     header.classList.add('collapsed');
                 }
                 
-                // Toggle button animations
+                
                 mobileToggle.classList.toggle('active');
                 mobileToggleFixed.classList.toggle('active');
             }
 
-            // Event listeners for toggle buttons
+            
             mobileToggle.addEventListener('click', function(e) {
                 e.stopPropagation();
                 toggleHeader();
@@ -89,7 +89,7 @@
                 toggleHeader();
             });
 
-            // Auto-hide header on scroll down, show on scroll up (mobile only)
+           
             let lastScrollTop = 0;
             
             function handleScroll() {

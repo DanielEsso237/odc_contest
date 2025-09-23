@@ -13,22 +13,52 @@
                             <span class="competitor-name">{{ submission.competitor.user.username }}</span>
                             <span class="post-date">{{ submission.published_at }}</span>
                         </div>
-                        <div class="post-media">
-                            {% if submission.media %}
-                                {% if submission.media.name|lower|slice:"-4:" == '.mp4' or submission.media.name|lower|slice:"-4:" == '.mov' %}
-                                    <video controls>
-                                        <source src="{{ submission.media.url }}" type="video/mp4">
-                                    </video>
-                                {% else %}
-                                    <img src="{{ submission.media.url }}" alt="Soumission">
+                        
+                        <!-- Carrousel de médias -->
+                        {% if submission.media_files.exists %}
+                            <div class="media-carousel" data-submission="{{ submission.id }}">
+                                <div class="media-container">
+                                    {% for media in submission.media_files.all %}
+                                        <div class="media-slide {% if forloop.first %}active{% endif %}">
+                                            {% if media.is_video %}
+                                                <video controls>
+                                                    <source src="{{ media.media.url }}" type="video/mp4">
+                                                    Votre navigateur ne supporte pas la lecture vidéo.
+                                                </video>
+                                            {% else %}
+                                                <img src="{{ media.media.url }}" alt="Soumission {{ forloop.counter }}" onclick="openFullscreen(this)">
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                <!-- Navigation du carrousel (seulement si plus d'un média) -->
+                                {% if submission.media_files.count > 1 %}
+                                    <button class="carousel-btn carousel-prev" onclick="changeSlide({{ submission.id }}, -1)">‹</button>
+                                    <button class="carousel-btn carousel-next" onclick="changeSlide({{ submission.id }}, 1)">›</button>
+                                    
+                                    <!-- Indicateurs -->
+                                    <div class="carousel-indicators">
+                                        {% for media in submission.media_files.all %}
+                                            <span class="indicator {% if forloop.first %}active{% endif %}" onclick="currentSlide({{ submission.id }}, {{ forloop.counter0 }})"></span>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    <!-- Compteur -->
+                                    <div class="media-counter">
+                                        <span class="current-slide">1</span> / {{ submission.media_files.count }}
+                                    </div>
                                 {% endif %}
-                            {% endif %}
-                        </div>
+                            </div>
+                        {% endif %}
+                        
                         <p class="post-description">{{ submission.description }}</p>
                         <div class="post-actions">
-                            <button class="action-button">Voter</button>
-                            <button class="action-button">Commenter</button>
-                            <button class="action-button">Partager</button>
+                            <button class="action-button vote-btn" data-submission="{{ submission.id }}">
+                                <span class="vote-icon">♡</span> Voter
+                            </button>
+                            <button class="action-button">💬 Commenter</button>
+                            <button class="action-button">📤 Partager</button>
                         </div>
                     </div>
                 {% endfor %}
@@ -38,9 +68,400 @@
         </div>
         <a href="{% url 'contests:trials' trial.event.id %}" class="button">Retour aux Épreuves</a>
     </div>
+    
+    <!-- Modal pour affichage plein écran -->
+    <div id="fullscreen-modal" class="modal" onclick="closeFullscreen()">
+        <div class="modal-content">
+            <span class="close" onclick="closeFullscreen()">&times;</span>
+            <img id="fullscreen-image" src="" alt="">
+        </div>
+    </div>
 {% endblock %}
 
 {% block extra_css %}
-    {% load static %} <!-- Ajoute cette ligne pour charger static localement -->
+    {% load static %}
     <link rel="stylesheet" href="{% static 'contests/css/publications.css' %}">
+    <style>
+        .media-carousel {
+            position: relative;
+            margin: 15px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .media-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+        }
+        
+        .media-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .media-slide.active {
+            opacity: 1;
+        }
+        
+        .media-slide img, .media-slide video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        
+        .media-slide video {
+            cursor: default;
+        }
+        
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 10;
+            transition: background 0.3s ease;
+        }
+        
+        .carousel-btn:hover {
+            background: rgba(0,0,0,0.9);
+        }
+        
+        .carousel-prev {
+            left: 15px;
+        }
+        
+        .carousel-next {
+            right: 15px;
+        }
+        
+        .carousel-indicators {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+        
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .indicator.active {
+            background: white;
+        }
+        
+        .media-counter {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            z-index: 10;
+        }
+        
+        /* Modal pour l'affichage plein écran */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+        }
+        
+        .modal-content {
+            position: relative;
+            margin: auto;
+            padding: 20px;
+            width: 90%;
+            height: 90%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: #bbb;
+        }
+        
+        /* Styles pour les actions */
+        .action-button {
+            background: none;
+            border: 1px solid #ddd;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+        
+        .action-button:hover {
+            background: #f0f0f0;
+        }
+        
+        .vote-btn.voted {
+            background: #ff4757;
+            color: white;
+            border-color: #ff4757;
+        }
+        
+        .vote-btn.voted .vote-icon {
+            content: "♥";
+        }
+        
+        .publication-post {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .post-header {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .competitor-name {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .post-date {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        .post-description {
+            padding: 15px 20px;
+            margin: 0;
+            line-height: 1.6;
+        }
+        
+        .post-actions {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .no-content {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+            padding: 40px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .media-container {
+                height: 300px;
+            }
+            
+            .carousel-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+            
+            .carousel-prev {
+                left: 10px;
+            }
+            
+            .carousel-next {
+                right: 10px;
+            }
+            
+            .media-counter {
+                top: 10px;
+                right: 10px;
+                font-size: 11px;
+                padding: 4px 8px;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    initCarousels();
+    initVoteButtons();
+});
+
+function initCarousels() {
+    document.querySelectorAll('.media-carousel').forEach(carousel => {
+        const submissionId = carousel.dataset.submission;
+        updateSlideCounter(submissionId);
+    });
+}
+
+function changeSlide(submissionId, direction) {
+    const carousel = document.querySelector(`[data-submission="${submissionId}"]`);
+    const slides = carousel.querySelectorAll('.media-slide');
+    const indicators = carousel.querySelectorAll('.indicator');
+    let currentIndex = -1;
+    
+    
+    slides.forEach((slide, index) => {
+        if (slide.classList.contains('active')) {
+            currentIndex = index;
+        }
+    });
+    
+    
+    let newIndex = currentIndex + direction;
+    if (newIndex >= slides.length) newIndex = 0;
+    if (newIndex < 0) newIndex = slides.length - 1;
+    
+  
+    slides[currentIndex].classList.remove('active');
+    slides[newIndex].classList.add('active');
+    
+   
+    if (indicators.length > 0) {
+        indicators[currentIndex].classList.remove('active');
+        indicators[newIndex].classList.add('active');
+    }
+    
+    
+    updateSlideCounter(submissionId, newIndex + 1);
+}
+
+function currentSlide(submissionId, slideIndex) {
+    const carousel = document.querySelector(`[data-submission="${submissionId}"]`);
+    const slides = carousel.querySelectorAll('.media-slide');
+    const indicators = carousel.querySelectorAll('.indicator');
+    slides.forEach(slide => slide.classList.remove('active'));
+    indicators.forEach(indicator => indicator.classList.remove('active'));
+    
+   
+    slides[slideIndex].classList.add('active');
+    indicators[slideIndex].classList.add('active');
+    
+    
+    updateSlideCounter(submissionId, slideIndex + 1);
+}
+
+function updateSlideCounter(submissionId, currentSlideNum = 1) {
+    const carousel = document.querySelector(`[data-submission="${submissionId}"]`);
+    const counter = carousel.querySelector('.current-slide');
+    if (counter) {
+        counter.textContent = currentSlideNum;
+    }
+}
+
+function openFullscreen(img) {
+    const modal = document.getElementById('fullscreen-modal');
+    const modalImg = document.getElementById('fullscreen-image');
+    modal.style.display = 'block';
+    modalImg.src = img.src;
+    modalImg.alt = img.alt;
+    
+    
+    document.body.style.overflow = 'hidden';
+}
+
+function closeFullscreen() {
+    const modal = document.getElementById('fullscreen-modal');
+    modal.style.display = 'none';
+    
+    
+    document.body.style.overflow = 'auto';
+}
+
+function initVoteButtons() {
+    document.querySelectorAll('.vote-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const submissionId = this.dataset.submission;
+            toggleVote(submissionId, this);
+        });
+    });
+}
+
+function toggleVote(submissionId, button) {
+    
+    if (button.classList.contains('voted')) {
+        button.classList.remove('voted');
+        button.innerHTML = '<span class="vote-icon">♡</span> Voter';
+    } else {
+        button.classList.add('voted');
+        button.innerHTML = '<span class="vote-icon">♥</span> Voté';
+    }
+}
+
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeFullscreen();
+    }
+});
+
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        const activeCarousel = document.querySelector('.media-carousel:hover');
+        if (activeCarousel) {
+            const submissionId = activeCarousel.dataset.submission;
+            const direction = e.key === 'ArrowLeft' ? -1 : 1;
+            changeSlide(submissionId, direction);
+        }
+    }
+});
+</script>
 {% endblock %}
