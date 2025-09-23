@@ -47,12 +47,11 @@ class Submission(models.Model):
     competitor = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_name='submissions', verbose_name="Concurrente")
     trial = models.ForeignKey(Trial, on_delete=models.CASCADE, related_name='submissions', verbose_name="Épreuve")
     description = models.TextField(verbose_name="Description")
+    moderator_text = models.TextField(blank=True, null=True, verbose_name="Texte du modérateur")  
     published_by = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'modo'}, related_name='published_submissions', verbose_name="Publié par", null=True, blank=True)
     published_at = models.DateTimeField(auto_now_add=True, verbose_name="Date de publication")
     is_published = models.BooleanField(default=False, verbose_name="Publié ?")
     
-    # IMPORTANT: Le champ 'media' a été supprimé d'ici
-
     class Meta:
         verbose_name = "Soumission"
         verbose_name_plural = "Soumissions"

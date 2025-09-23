@@ -1,4 +1,4 @@
-# C:\Users\T.SHIGARAKI\Desktop\ODC_CONTEST\contests\views.py
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -135,20 +135,29 @@ def manage_trial_submissions(request, trial_id):
     if request.user.role.lower() != 'modo' or trial.event.created_by != request.user:
         return redirect('accounts:home')
     
-    if request.method == 'POST' and 'publish_submission' in request.POST:
-        submission_id = request.POST['submission_id']
-        try:
-            submission = Submission.objects.get(id=submission_id)
-            submission.is_published = True
-            submission.published_by = request.user
-            submission.save()
-            messages.success(request, "Soumission publiée !")
-            return redirect('contests:manage_trial_submissions', trial_id=trial.id)
-        except Submission.DoesNotExist:
-            messages.error(request, "Soumission non trouvée.")
-
     submissions = Submission.objects.filter(trial=trial, is_published=False)
     return render(request, 'contests/manage_trial_submissions.html', {
         'trial': trial,
         'submissions': submissions
+    })
+
+@login_required
+def manage_submission_detail(request, submission_id):
+    submission = get_object_or_404(Submission, id=submission_id)
+    trial = submission.trial
+    if request.user.role.lower() != 'modo' or trial.event.created_by != request.user:
+        return redirect('accounts:home')
+    
+    if request.method == 'POST':
+        moderator_text = request.POST.get('moderator_text', '')
+        submission.moderator_text = moderator_text
+        submission.is_published = True
+        submission.published_by = request.user
+        submission.save()
+        messages.success(request, "Soumission publiée avec succès !")
+        return redirect('contests:publications', trial_id=trial.id)
+
+    return render(request, 'contests/manage_submission_detail.html', {
+        'submission': submission,
+        'trial': trial
     })

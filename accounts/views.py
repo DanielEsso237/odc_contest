@@ -1,4 +1,3 @@
-# C:\Users\T.SHIGARAKI\Desktop\ODC_CONTEST\accounts\views.py
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages

@@ -14,6 +14,14 @@
                             <span class="post-date">{{ submission.published_at }}</span>
                         </div>
                         
+                        <!-- Affichage du texte du modérateur (si existant) -->
+                        {% if submission.moderator_text %}
+                            <p class="moderator-text"><strong>Texte du Modérateur :</strong> {{ submission.moderator_text }}</p>
+                        {% endif %}
+                        
+                        <!-- Affichage du texte de la concurrente -->
+                        <p class="post-description"><strong>Texte de la Concurrente :</strong> {{ submission.description }}</p>
+                        
                         <!-- Carrousel de médias -->
                         {% if submission.media_files.exists %}
                             <div class="media-carousel" data-submission="{{ submission.id }}">
@@ -52,7 +60,6 @@
                             </div>
                         {% endif %}
                         
-                        <p class="post-description">{{ submission.description }}</p>
                         <div class="post-actions">
                             <button class="action-button vote-btn" data-submission="{{ submission.id }}">
                                 <span class="vote-icon">♡</span> Voter
@@ -280,6 +287,15 @@
             font-size: 14px;
         }
         
+        .moderator-text {
+            padding: 15px 20px;
+            margin: 0;
+            line-height: 1.6;
+            background: #f0f8ff; /* Légère couleur pour le distinguer */
+            color: #2c3e50;
+            font-style: italic;
+        }
+        
         .post-description {
             padding: 15px 20px;
             margin: 0;
@@ -357,28 +373,23 @@ function changeSlide(submissionId, direction) {
     const indicators = carousel.querySelectorAll('.indicator');
     let currentIndex = -1;
     
-    
     slides.forEach((slide, index) => {
         if (slide.classList.contains('active')) {
             currentIndex = index;
         }
     });
     
-    
     let newIndex = currentIndex + direction;
     if (newIndex >= slides.length) newIndex = 0;
     if (newIndex < 0) newIndex = slides.length - 1;
     
-  
     slides[currentIndex].classList.remove('active');
     slides[newIndex].classList.add('active');
     
-   
     if (indicators.length > 0) {
         indicators[currentIndex].classList.remove('active');
         indicators[newIndex].classList.add('active');
     }
-    
     
     updateSlideCounter(submissionId, newIndex + 1);
 }
@@ -390,10 +401,8 @@ function currentSlide(submissionId, slideIndex) {
     slides.forEach(slide => slide.classList.remove('active'));
     indicators.forEach(indicator => indicator.classList.remove('active'));
     
-   
     slides[slideIndex].classList.add('active');
     indicators[slideIndex].classList.add('active');
-    
     
     updateSlideCounter(submissionId, slideIndex + 1);
 }
@@ -413,14 +422,12 @@ function openFullscreen(img) {
     modalImg.src = img.src;
     modalImg.alt = img.alt;
     
-    
     document.body.style.overflow = 'hidden';
 }
 
 function closeFullscreen() {
     const modal = document.getElementById('fullscreen-modal');
     modal.style.display = 'none';
-    
     
     document.body.style.overflow = 'auto';
 }
@@ -435,7 +442,6 @@ function initVoteButtons() {
 }
 
 function toggleVote(submissionId, button) {
-    
     if (button.classList.contains('voted')) {
         button.classList.remove('voted');
         button.innerHTML = '<span class="vote-icon">♡</span> Voter';
@@ -445,13 +451,11 @@ function toggleVote(submissionId, button) {
     }
 }
 
-
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeFullscreen();
     }
 });
-
 
 document.addEventListener('keydown', function(e) {
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {

@@ -16,7 +16,7 @@
                             <a href="{% url 'contests:publications' trial.id %}" class="button">Voir les Publications</a>
                             {% if user.role|lower == 'modo' %}
                                 <button class="button add-trial-button">Ajouter une épreuve</button>
-                                <button class="button manage-submissions-button">Gérer les soumissions</button>
+                                <a href="{% url 'contests:manage_trial_submissions' trial.id %}" class="button manage-submissions-button">Gérer les soumissions</a>
                             {% endif %}
                         </div>
                     </div>
@@ -45,6 +45,8 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
         }
         .add-trial-button:hover, .manage-submissions-button:hover {
             background-color: #218838;

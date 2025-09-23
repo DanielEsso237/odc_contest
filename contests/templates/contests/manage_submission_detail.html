@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ submission.competitor.user.username }} - Détails - {% endblock %}
+
+{% block content %}
+    <main class="main-content">
+        <div class="dashboard-header">
+            <h2>Détails de la Soumission - {{ submission.competitor.user.username }}</h2>
+            <a href="{% url 'contests:manage_trial_submissions' trial.id %}" class="back-button">Retour</a>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="submission-detail">
+            <p><strong>Candidat :</strong> {{ submission.competitor.user.username }}</p>
+            <p><strong>Texte soumis :</strong> {{ submission.description }}</p>
+            {% for media in submission.submissionmedia_set.all %}
+                {% if media.media.url|slice:"-4:" == ".jpg" or media.media.url|slice:"-4:" == ".png" or media.media.url|slice:"-5:" == ".jpeg" %}
+                    <img src="{{ media.media.url }}" alt="Media" class="submission-media">
+                {% elif media.media.url|slice:"-4:" == ".mp4" or media.media.url|slice:"-4:" == ".mov" %}
+                    <video controls class="submission-media">
+                        <source src="{{ media.media.url }}" type="video/mp4">
+                        Votre navigateur ne supporte pas la vidéo.
+                    </video>
+                {% endif %}
+            {% endfor %}
+
+            <form method="post" action="{% url 'contests:manage_submission_detail' submission.id %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="moderator_text">Texte du Modérateur :</label>
+                    <textarea name="moderator_text" id="moderator_text" class="form-control" rows="4" placeholder="Ajouter un commentaire ou texte"></textarea>
+                </div>
+                <button type="submit" class="publish-button">Publier</button>
+            </form>
+        </div>
+    </main>
+{% endblock %}
+
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'contests/css/manage_submission_detail.css' %}">
+{% endblock %}

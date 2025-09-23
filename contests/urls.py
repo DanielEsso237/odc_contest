@@ -1,4 +1,3 @@
-# C:\Users\T.SHIGARAKI\Desktop\ODC_CONTEST\contests\urls.py
 from django.urls import path
 from . import views
 
@@ -10,4 +9,5 @@ urlpatterns = [
     path('manage-events/', views.manage_events, name='manage_events'),
     path('manage-events/<int:event_id>/', views.manage_event_detail, name='manage_event_detail'),
     path('manage-trials/<int:trial_id>/submissions/', views.manage_trial_submissions, name='manage_trial_submissions'),
+    path('manage-submissions/<int:submission_id>/', views.manage_submission_detail, name='manage_submission_detail'),
 ]
