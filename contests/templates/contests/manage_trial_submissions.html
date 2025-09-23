@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ trial.title }} - Soumissions - {% endblock %}
+
+{% block content %}
+    <main class="main-content">
+        <div class="dashboard-header">
+            <h2>{{ trial.title }} - Soumissions en attente de validation</h2>
+            <a href="{% url 'contests:manage_event_detail' trial.event.id %}" class="back-button">Retour</a>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="submissions-list">
+            {% for submission in submissions %}
+                <div class="submission-card">
+                    <p><strong>Candidat :</strong> {{ submission.competitor.user.username }}</p>
+                    <p><strong>Texte :</strong> {{ submission.description }}</p>
+                    <a href="{% url 'contests:manage_submission_detail' submission.id %}" class="view-details-button">Voir</a>
+                    <a href="{% url 'contests:publications' trial.id %}" class="view-publication-button">Voir les Publications</a>
+                </div>
+            {% empty %}
+                <p>Aucune soumission en attente.</p>
+            {% endfor %}
+        </div>
+    </main>
+{% endblock %}
+
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'contests/css/manage_trial_submissions.css' %}">
+{% endblock %}

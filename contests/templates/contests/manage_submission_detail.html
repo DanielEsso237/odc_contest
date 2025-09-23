@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Détails Soumission - {% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2>Détails de la Soumission - {{ submission.competitor.user.username }}</h2>
+        <div class="submission-detail">
+            <p><strong>Texte soumis :</strong> {{ submission.description }}</p>
+            {% for media in submission.media_files.all %}
+                {% if media.media.url|slice:"-4:" == ".jpg" or media.media.url|slice:"-4:" == ".png" or media.media.url|slice:"-5:" == ".jpeg" %}
+                    <img src="{{ media.media.url }}" alt="Media" class="submission-media" style="max-width: 100%; max-height: 300px;">
+                {% elif media.media.url|slice:"-4:" == ".mp4" or media.media.url|slice:"-4:" == ".mov" %}
+                    <video controls class="submission-media" style="max-width: 100%; max-height: 300px;">
+                        <source src="{{ media.media.url }}" type="video/mp4">
+                        Votre navigateur ne supporte pas la vidéo.
+                    </video>
+                {% endif %}
+            {% endfor %}
+            <p><strong>Attention :</strong> Vérifiez que le contenu (surtout les médias) ne contient pas de contenu inapproprié (p*rno, mutilation, etc.) avant publication.</p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="moderator_text">Texte du Modérateur :</label>
+                    <textarea name="moderator_text" id="moderator_text" class="form-control" rows="4" placeholder="Ajouter un commentaire ou texte"></textarea>
+                </div>
+                <button type="submit" name="publish" class="publish-button">Publier</button>
+                <button type="submit" name="reject" class="reject-button" onclick="return confirm('Êtes-vous sûr de vouloir rejeter cette soumission ?');">Rejeter</button>
+            </form>
+        </div>
+        <a href="{% url 'contests:manage_trial_submissions' trial.id %}" class="button">Retour</a>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'contests/css/manage_submission_detail.css' %}">
+    <style>
+        .reject-button {
+            padding: 5px 10px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .reject-button:hover {
+            background-color: #c82333;
+        }
+        .submission-media {
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+    </style>
+{% endblock %}

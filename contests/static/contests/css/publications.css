@@ -1,127 +1,130 @@
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f8f9ff;
-    margin: 0;
-    padding: 20px;
-    color: #1c1e21;
-    display: flex;
-    justify-content: center; 
-}
+/* C:\Users\T.SHIGARAKI\Desktop\ODC_CONTEST\contests\static\contests\css/publications.css */
 
 .container {
-    width: 100%;
-    max-width: 700px;  
-    margin: 0 auto;
+    padding: 20px;
 }
 
 h2 {
-    text-align: center;
-    color: #6b46c1;
     margin-bottom: 20px;
 }
 
-.publication-feed {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    align-items: center; /* Centre les posts dans le flux */
-}
-
-.publication-post {
-    width: 100%;
-    background: #ffffff;
-    padding: 15px;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.publication-post:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-}
-
-.post-header {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap; /* évite le chevauchement sur petit écran */
-    margin-bottom: 10px;
-    font-weight: bold;
-    color: #6b46c1;
-}
-
-.post-media img,
-.post-media video {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-    margin-bottom: 10px;
-}
-
-.post-description {
-    margin-bottom: 10px;
-    text-align: justify;
-}
-
-.post-actions {
-    display: flex;
-    flex-wrap: wrap; /* passe en ligne multiple sur petit écran */
-    gap: 10px;
-    justify-content: center; /* centre les boutons */
-}
-
-.action-button {
-    flex: 1 1 auto; /* boutons flexibles */
-    padding: 10px;
-    background-color: #e2e8f0;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    text-align: center;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.action-button:hover {
-    background-color: #6b46c1;
-    color: #ffffff;
-}
-
 .button {
-    display: block;
-    width: fit-content;
-    margin: 30px auto 0; /* centré */
-    padding: 12px 24px;
-    background-color: #6b46c1;
-    color: #ffffff;
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #6c757d;
+    color: white;
     text-decoration: none;
-    border-radius: 6px;
-    text-align: center;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
+    border-radius: 5px;
+    margin-bottom: 20px;
 }
 
 .button:hover {
-    background-color: #553c9a;
+    background-color: #5a6268;
 }
 
-/* Responsive */
+.publication-post {
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.post-header {
+    padding: 15px 20px;
+    background: #f8f9fa;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+}
+
+.competitor-name {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.post-date {
+    color: #7f8c8d;
+    font-size: 14px;
+}
+
+.moderator-text {
+    padding: 15px 20px;
+    margin: 0;
+    line-height: 1.6;
+    background: #f0f8ff;
+    color: #2c3e50;
+    font-style: italic;
+}
+
+.post-description {
+    padding: 15px 20px;
+    margin: 0;
+    line-height: 1.6;
+}
+
+.post-actions {
+    padding: 15px 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+}
+
+.action-button {
+    background: none;
+    border: 1px solid #ddd;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-right: 10px;
+}
+
+.action-button:hover {
+    background: #f0f0f0;
+}
+
+.vote-btn.voted {
+    background: #ff4757;
+    color: white;
+    border-color: #ff4757;
+}
+
+.vote-btn.voted .vote-icon {
+    content: "♥";
+}
+
+.no-content {
+    text-align: center;
+    color: #7f8c8d;
+    font-style: italic;
+    padding: 40px;
+}
+
 @media (max-width: 768px) {
-    body {
-        padding: 10px;
+    .media-container {
+        height: 300px;
     }
-
-    .container {
-        padding: 0 10px;
+    
+    .carousel-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
     }
-
-    .post-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 5px;
+    
+    .carousel-prev {
+        left: 10px;
     }
-
-    .action-button {
-        flex: 1 1 100%; /* prend toute la largeur sur mobile */
+    
+    .carousel-next {
+        right: 10px;
+    }
+    
+    .media-counter {
+        top: 10px;
+        right: 10px;
+        font-size: 11px;
+        padding: 4px 8px;
     }
 }

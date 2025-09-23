@@ -1,4 +1,3 @@
-# C:\Users\T.SHIGARAKI\Desktop\ODC_CONTEST\contests\views.py
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -100,4 +99,69 @@ def manage_events(request):
         'members': members,
         'submissions': submissions,
         'competitors': competitors
+    })
+
+@login_required
+def manage_event_detail(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    if request.user.role.lower() != 'modo' or event.created_by != request.user:
+        return redirect('accounts:home')
+    
+    if request.method == 'POST' and 'create_trial' in request.POST:
+        title = request.POST['title']
+        description = request.POST['description']
+        order = Trial.objects.filter(event=event).count() + 1
+        Trial.objects.create(
+            event=event,
+            title=title,
+            description=description,
+            order=order
+        )
+        messages.success(request, "Épreuve créée !")
+        return redirect('contests:manage_event_detail', event_id=event.id)
+
+    trials = Trial.objects.filter(event=event).order_by('order')
+    competitors = Competitor.objects.filter(event=event)
+    return render(request, 'contests/manage_event_detail.html', {
+        'event': event,
+        'trials': trials,
+        'competitors': competitors
+    })
+
+@login_required
+def manage_trial_submissions(request, trial_id):
+    trial = get_object_or_404(Trial, id=trial_id)
+    if request.user.role.lower() != 'modo' or trial.event.created_by != request.user:
+        return redirect('accounts:home')
+    
+    submissions = Submission.objects.filter(trial=trial, is_published=False)
+    return render(request, 'contests/manage_trial_submissions.html', {
+        'trial': trial,
+        'submissions': submissions
+    })
+
+@login_required
+def manage_submission_detail(request, submission_id):
+    submission = get_object_or_404(Submission, id=submission_id)
+    trial = submission.trial
+    if request.user.role.lower() != 'modo' or trial.event.created_by != request.user:
+        return redirect('accounts:home')
+    
+    if request.method == 'POST':
+        if 'publish' in request.POST:
+            moderator_text = request.POST.get('moderator_text', '')
+            submission.moderator_text = moderator_text
+            submission.is_published = True
+            submission.published_by = request.user
+            submission.save()
+            messages.success(request, "Soumission publiée avec succès !")
+            return redirect('contests:publications', trial_id=trial.id)
+        elif 'reject' in request.POST:
+            submission.delete()
+            messages.success(request, "Soumission rejetée et supprimée !")
+            return redirect('contests:manage_trial_submissions', trial_id=trial.id)
+
+    return render(request, 'contests/manage_submission_detail.html', {
+        'submission': submission,
+        'trial': trial
     })
