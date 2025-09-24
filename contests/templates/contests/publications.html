@@ -14,15 +14,15 @@
                             <span class="post-date">{{ submission.published_at }}</span>
                         </div>
                         
-                        <!-- Affichage du texte du modérateur (si existant) -->
+                        
                         {% if submission.moderator_text %}
                             <p class="moderator-text"><strong>Texte du Modérateur :</strong> {{ submission.moderator_text }}</p>
                         {% endif %}
                         
-                        <!-- Affichage du texte de la concurrente -->
+                      
                         <p class="post-description"><strong>Texte de la Concurrente :</strong> {{ submission.description }}</p>
                         
-                        <!-- Carrousel de médias -->
+                       
                         {% if submission.media_files.exists %}
                             <div class="media-carousel" data-submission="{{ submission.id }}">
                                 <div class="media-container">
@@ -40,19 +40,19 @@
                                     {% endfor %}
                                 </div>
                                 
-                                <!-- Navigation du carrousel (seulement si plus d'un média) -->
+                               
                                 {% if submission.media_files.count > 1 %}
                                     <button class="carousel-btn carousel-prev" onclick="changeSlide({{ submission.id }}, -1)">‹</button>
                                     <button class="carousel-btn carousel-next" onclick="changeSlide({{ submission.id }}, 1)">›</button>
                                     
-                                    <!-- Indicateurs -->
+                                  
                                     <div class="carousel-indicators">
                                         {% for media in submission.media_files.all %}
                                             <span class="indicator {% if forloop.first %}active{% endif %}" onclick="currentSlide({{ submission.id }}, {{ forloop.counter0 }})"></span>
                                         {% endfor %}
                                     </div>
                                     
-                                    <!-- Compteur -->
+                                   
                                     <div class="media-counter">
                                         <span class="current-slide">1</span> / {{ submission.media_files.count }}
                                     </div>
@@ -76,7 +76,6 @@
         <a href="{% url 'contests:trials' trial.event.id %}" class="button">Retour aux Épreuves</a>
     </div>
     
-    <!-- Modal pour affichage plein écran -->
     <div id="fullscreen-modal" class="modal" onclick="closeFullscreen()">
         <div class="modal-content">
             <span class="close" onclick="closeFullscreen()">&times;</span>
