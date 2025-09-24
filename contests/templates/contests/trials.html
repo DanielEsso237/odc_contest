@@ -3,52 +3,419 @@
 {% block title %}Épreuves - {% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h2>Épreuves pour l'Événement {{ event.title }}</h2>
+    <div class="trials-container">
+        <div class="trials-header">
+            <div class="header-content">
+                <h2>Épreuves pour l'Événement {{ event.title }}</h2>
+                <p class="event-description">Découvrez toutes les épreuves disponibles</p>
+            </div>
+            {% if user.role|lower == 'modo' %}
+                <button class="btn btn-success add-trial-button" style="position: absolute; top: 20px; right: 20px;">
+                    <span class="btn-icon">➕</span>
+                    Ajouter une épreuve
+                </button>
+            {% endif %}
+        </div>
+
         <div class="trial-list">
             {% if trials %}
                 {% for trial in trials %}
                     <div class="trial-card">
-                        <h3>{{ trial.title }}</h3>
-                        <p>{{ trial.description }}</p>
-                        <div class="trial-actions">
-                            <a href="{% url 'contests:publications' trial.id %}" class="button">Voir les Publications</a>
-                            {% if user.role|lower == 'modo' %}
-                                <button class="button add-trial-button">Ajouter une épreuve</button>
-                                <a href="{% url 'contests:manage_trial_submissions' trial.id %}" class="button manage-submissions-button">Gérer les soumissions</a>
-                            {% endif %}
+                        <div class="trial-badge">{{ forloop.counter }}</div>
+                        <div class="trial-content">
+                            <h3>{{ trial.title }}</h3>
+                            <p class="trial-description">{{ trial.description }}</p>
+                            <div class="trial-actions">
+                                <a href="{% url 'contests:publications' trial.id %}" class="btn btn-primary">
+                                    <span class="btn-icon">👁️</span>
+                                    Voir les Publications
+                                </a>
+                                {% if user.role|lower == 'modo' %}
+                                    <a href="{% url 'contests:manage_trial_submissions' trial.id %}" class="btn btn-warning">
+                                        <span class="btn-icon">⚙️</span>
+                                        Gérer les soumissions
+                                    </a>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 {% endfor %}
             {% else %}
-                <p class="no-content">Aucune épreuve disponible.</p>
+                <div class="no-content">
+                    <div class="no-content-icon">📋</div>
+                    <h3>Aucune épreuve disponible</h3>
+                    <p>Il n'y a pas encore d'épreuves pour cet événement.</p>
+                </div>
             {% endif %}
         </div>
-        <a href="{% url 'contests:events' %}" class="button">Retour aux Événements</a>
+
+        <div class="back-action">
+            <a href="{% url 'contests:events' %}" class="btn btn-secondary btn-back">
+                <span class="btn-icon">⬅️</span>
+                Retour aux Événements
+            </a>
+        </div>
     </div>
 {% endblock %}
 
 {% block extra_css %}
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'contests/css/events.css' %}">
     <style>
+        .trials-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Section */
+        .trials-header {
+            background: linear-gradient(135deg, #6b46c1 0%, #8b5cf6 100%);
+            border-radius: 20px;
+            padding: 40px 32px;
+            margin-bottom: 32px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 25px -5px rgba(107, 70, 193, 0.3);
+        }
+
+        .trials-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 4s infinite linear;
+        }
+
+        @keyframes shimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .trials-header h2 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .event-description {
+            font-size: 16px;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        /* Trial List */
+        .trial-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .trial-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .trial-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #6b46c1 0%, #8b5cf6 100%);
+        }
+
+        .trial-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .trial-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #6b46c1 0%, #8b5cf6 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+        }
+
+        .trial-content {
+            padding-right: 60px;
+        }
+
+        .trial-card h3 {
+            color: #1e293b;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .trial-card h3::before {
+            content: "🏆";
+            font-size: 28px;
+        }
+
+        .trial-description {
+            color: #64748b;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            padding-right: 0;
+        }
+
+        /* Buttons */
         .trial-actions {
             display: flex;
-            gap: 10px;
-            margin-top: 10px;
+            flex-wrap: wrap;
+            gap: 12px;
         }
-        .add-trial-button, .manage-submissions-button {
-            padding: 8px 15px;
-            background-color: #28a745;
-            color: white;
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
             border: none;
-            border-radius: 5px;
-            cursor: pointer;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
             text-decoration: none;
-            display: inline-block;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            white-space: nowrap;
         }
-        .add-trial-button:hover, .manage-submissions-button:hover {
-            background-color: #218838;
+
+        .btn-icon {
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6b46c1 0%, #8b5cf6 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #553c9a 0%, #6b46c1 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(107, 70, 193, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #475569 0%, #64748b 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(100, 116, 139, 0.3);
+        }
+
+        /* No Content State */
+        .no-content {
+            text-align: center;
+            padding: 60px 40px;
+            background: white;
+            border-radius: 20px;
+            border: 2px dashed #d1d5db;
+            color: #6b7280;
+        }
+
+        .no-content-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.6;
+        }
+
+        .no-content h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+
+        .no-content p {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        /* Back Action */
+        .back-action {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 2px solid #e5e7eb;
+        }
+
+        .btn-back {
+            padding: 14px 28px;
+            font-size: 16px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .trials-container {
+                padding: 0 16px;
+            }
+
+            .trials-header {
+                padding: 32px 24px;
+                margin-bottom: 24px;
+            }
+
+            .trials-header h2 {
+                font-size: 28px;
+            }
+
+            .trial-list {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .trial-card {
+                padding: 20px;
+            }
+
+            .trial-content {
+                padding-right: 50px;
+            }
+
+            .trial-badge {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+            }
+
+            .trial-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                justify-content: center;
+                padding: 12px 16px;
+            }
+
+            .trials-header .btn-success {
+                top: 16px;
+                right: 16px;
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .trials-header {
+                padding: 24px 16px;
+            }
+
+            .trials-header h2 {
+                font-size: 24px;
+            }
+
+            .trial-card {
+                padding: 16px;
+            }
+
+            .trial-content {
+                padding-right: 40px;
+            }
+
+            .trial-card h3 {
+                font-size: 20px;
+            }
+
+            .btn {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+
+            .trials-header .btn-success {
+                top: 12px;
+                right: 12px;
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+        }
+
+        /* Animation pour les cartes */
+        .trial-card {
+            animation: fadeInUp 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .trial-card:nth-child(1) { animation-delay: 0.1s; }
+        .trial-card:nth-child(2) { animation-delay: 0.2s; }
+        .trial-card:nth-child(3) { animation-delay: 0.3s; }
+        .trial-card:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Amélioration accessibilité */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
         }
     </style>
 {% endblock %}
