@@ -12,6 +12,35 @@ def events_view(request):
 @login_required
 def trials_view(request, event_id):
     event = get_object_or_404(Event, id=event_id)
+    
+    # Gestion de la création d'épreuve
+    if request.method == 'POST' and 'create_trial' in request.POST:
+        if request.user.role.lower() != 'modo':
+            messages.error(request, "Vous n'avez pas les permissions nécessaires.")
+            return redirect('contests:trials', event_id=event.id)
+        
+        title = request.POST.get('title', '').strip()
+        description = request.POST.get('description', '').strip()
+        
+        if not title:
+            messages.error(request, "Le titre de l'épreuve est obligatoire.")
+        else:
+            # Calculer l'ordre automatiquement
+            order = Trial.objects.filter(event=event).count() + 1
+            
+            try:
+                Trial.objects.create(
+                    event=event,
+                    title=title,
+                    description=description,
+                    order=order
+                )
+                messages.success(request, f"Épreuve '{title}' créée avec succès !")
+            except Exception as e:
+                messages.error(request, f"Erreur lors de la création de l'épreuve : {str(e)}")
+        
+        return redirect('contests:trials', event_id=event.id)
+    
     trials = Trial.objects.filter(event=event).order_by('order')
     return render(request, 'contests/trials.html', {'event': event, 'trials': trials})
 
@@ -117,8 +146,8 @@ def manage_event_detail(request, event_id):
             description=description,
             order=order
         )
-        messages.success(request, "Épreuve créée !")
-        return redirect('contests:manage_event_detail', event_id=event.id)
+        messages.success(request, "Épreuve créée avec succès !")
+        return redirect('contests:trials', event_id=event.id)
 
     trials = Trial.objects.filter(event=event).order_by('order')
     competitors = Competitor.objects.filter(event=event)
