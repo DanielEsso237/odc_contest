@@ -14,45 +14,39 @@
                             <span class="post-date">{{ submission.published_at }}</span>
                         </div>
                         
-                        
                         {% if submission.moderator_text %}
                             <p class="moderator-text"><strong>Texte du Modérateur :</strong> {{ submission.moderator_text }}</p>
                         {% endif %}
                         
-                      
                         <p class="post-description"><strong>Texte de la Concurrente :</strong> {{ submission.description }}</p>
                         
-                       
                         {% if submission.media_files.exists %}
                             <div class="media-carousel" data-submission="{{ submission.id }}">
                                 <div class="media-container">
                                     {% for media in submission.media_files.all %}
-                                        <div class="media-slide {% if forloop.first %}active{% endif %}">
+                                        <div class="media-slide {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
                                             {% if media.is_video %}
                                                 <video controls>
                                                     <source src="{{ media.media.url }}" type="video/mp4">
                                                     Votre navigateur ne supporte pas la lecture vidéo.
                                                 </video>
                                             {% else %}
-                                                <img src="{{ media.media.url }}" alt="Soumission {{ forloop.counter }}" onclick="openFullscreen(this)">
+                                                <img src="{{ media.media.url }}" alt="Soumission {{ forloop.counter }}" onclick="openFullscreen(this, {{ submission.id }}, {{ forloop.counter0 }})">
                                             {% endif %}
                                         </div>
                                     {% endfor %}
                                 </div>
                                 
-                               
                                 {% if submission.media_files.count > 1 %}
                                     <button class="carousel-btn carousel-prev" onclick="changeSlide({{ submission.id }}, -1)">‹</button>
                                     <button class="carousel-btn carousel-next" onclick="changeSlide({{ submission.id }}, 1)">›</button>
                                     
-                                  
                                     <div class="carousel-indicators">
                                         {% for media in submission.media_files.all %}
                                             <span class="indicator {% if forloop.first %}active{% endif %}" onclick="currentSlide({{ submission.id }}, {{ forloop.counter0 }})"></span>
                                         {% endfor %}
                                     </div>
                                     
-                                   
                                     <div class="media-counter">
                                         <span class="current-slide">1</span> / {{ submission.media_files.count }}
                                     </div>
@@ -76,9 +70,9 @@
         <a href="{% url 'contests:trials' trial.event.id %}" class="button">Retour aux Épreuves</a>
     </div>
     
-    <div id="fullscreen-modal" class="modal" onclick="closeFullscreen()">
+    <div id="fullscreen-modal" class="modal" onclick="closeFullscreen(event)">
         <div class="modal-content">
-            <span class="close" onclick="closeFullscreen()">&times;</span>
+            <span class="close" onclick="closeFullscreen(event)">&times;</span>
             <img id="fullscreen-image" src="" alt="">
         </div>
     </div>
@@ -111,10 +105,12 @@
             height: 100%;
             opacity: 0;
             transition: opacity 0.3s ease;
+            pointer-events: none;
         }
         
         .media-slide.active {
             opacity: 1;
+            pointer-events: auto;
         }
         
         .media-slide img, .media-slide video {
@@ -191,7 +187,6 @@
             z-index: 10;
         }
         
-        /* Modal pour l'affichage plein écran */
         .modal {
             display: none;
             position: fixed;
@@ -234,7 +229,6 @@
             color: #bbb;
         }
         
-        /* Styles pour les actions */
         .action-button {
             background: none;
             border: 1px solid #ddd;
@@ -321,7 +315,6 @@
             padding: 40px;
         }
         
-        /* Responsive */
         @media (max-width: 768px) {
             .media-container {
                 height: 300px;
@@ -362,6 +355,7 @@ function initCarousels() {
     document.querySelectorAll('.media-carousel').forEach(carousel => {
         const submissionId = carousel.dataset.submission;
         updateSlideCounter(submissionId);
+        pauseInactiveVideos(carousel); // Pause les vidéos non actives au chargement
     });
 }
 
@@ -389,6 +383,7 @@ function changeSlide(submissionId, direction) {
         indicators[newIndex].classList.add('active');
     }
     
+    pauseInactiveVideos(carousel); // Pause les vidéos non actives après changement
     updateSlideCounter(submissionId, newIndex + 1);
 }
 
@@ -402,6 +397,7 @@ function currentSlide(submissionId, slideIndex) {
     slides[slideIndex].classList.add('active');
     indicators[slideIndex].classList.add('active');
     
+    pauseInactiveVideos(carousel); // Pause les vidéos non actives après sélection
     updateSlideCounter(submissionId, slideIndex + 1);
 }
 
@@ -413,21 +409,31 @@ function updateSlideCounter(submissionId, currentSlideNum = 1) {
     }
 }
 
-function openFullscreen(img) {
+function openFullscreen(img, submissionId, slideIndex) {
     const modal = document.getElementById('fullscreen-modal');
     const modalImg = document.getElementById('fullscreen-image');
     modal.style.display = 'block';
-    modalImg.src = img.src;
+    modalImg.src = img.src; // Utilise la source de l'image cliquée
     modalImg.alt = img.alt;
-    
     document.body.style.overflow = 'hidden';
 }
 
-function closeFullscreen() {
-    const modal = document.getElementById('fullscreen-modal');
-    modal.style.display = 'none';
-    
-    document.body.style.overflow = 'auto';
+function closeFullscreen(event) {
+    if (event.target === document.getElementById('fullscreen-modal') || event.target.classList.contains('close')) {
+        const modal = document.getElementById('fullscreen-modal');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+function pauseInactiveVideos(carousel) {
+    const slides = carousel.querySelectorAll('.media-slide');
+    slides.forEach(slide => {
+        const video = slide.querySelector('video');
+        if (video && !slide.classList.contains('active')) {
+            video.pause(); // Pause les vidéos non actives
+        }
+    });
 }
 
 function initVoteButtons() {
@@ -451,7 +457,7 @@ function toggleVote(submissionId, button) {
 
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-        closeFullscreen();
+        closeFullscreen(e);
     }
 });
 
