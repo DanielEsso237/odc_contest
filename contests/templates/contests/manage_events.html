@@ -19,7 +19,8 @@
             {% for event in events %}
                 <div class="event-card">
                     <h3>{{ event.title }}</h3>
-                    <p><strong>Date :</strong> {{ event.start_date }} - {{ event.end_date }}</p>
+                    <p><strong>Date :</strong> <strong>Du</strong> {{ event.start_date }} <strong>Au</strong> {{ event.end_date }}</p>
+                    <p><strong>Description :</strong> {{event.description}}</p>
                     <a href="{% url 'contests:manage_event_detail' event.id %}" class="manage-button">Gérer</a>
                 </div>
             {% empty %}
@@ -58,8 +59,10 @@
             <h3>Soumissions en attente</h3>
             {% for submission in submissions %}
                 <div class="submission-card">
-                    <p><strong>Concurrent :</strong> {{ submission.competitor.user.username }}</p>
-                    <p><strong>Épreuve :</strong> {{ submission.trial.title }}</p>
+                    <div class="submission-info">
+                        <p><strong>Concurrent :</strong> {{ submission.competitor.user.username }}</p>
+                        <p><strong>Épreuve :</strong> {{ submission.trial.title }}</p>
+                    </div>
                     <form method="post" action="{% url 'contests:manage_events' %}" style="display:inline;">
                         {% csrf_token %}
                         <input type="hidden" name="submission_id" value="{{ submission.id }}">
@@ -74,8 +77,536 @@
 {% endblock %}
 
 {% block extra_css %}
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'contests/css/manage_events.css' %}">
+    <style>
+        .main-content {
+            padding: 32px 24px !important;
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            background: #f8fafc !important;
+            min-height: calc(100vh - 90px) !important;
+        }
+
+        /* Header du dashboard */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding: 24px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .dashboard-header h2 {
+            color: #1e293b;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dashboard-header h2::before {
+            content: "📅";
+            font-size: 32px;
+        }
+
+        /* Bouton d'ajout d'événement */
+        .add-event-button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            border: none;
+            cursor: pointer;
+        }
+
+        .add-event-button::before {
+            content: "➕";
+            font-size: 16px;
+        }
+
+        .add-event-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+
+        /* Messages */
+        .message {
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            border-radius: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        }
+
+        .message::before {
+            font-size: 18px;
+        }
+
+        .message.success {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            color: #059669;
+            border: 1px solid #bbf7d0;
+        }
+
+        .message.success::before {
+            content: "✅";
+        }
+
+        .message.error {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .message.error::before {
+            content: "❌";
+        }
+
+        .message.warning {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            color: #d97706;
+            border: 1px solid #fed7aa;
+        }
+
+        .message.warning::before {
+            content: "⚠️";
+        }
+
+        .message.info {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            color: #1d4ed8;
+            border: 1px solid #93c5fd;
+        }
+
+        .message.info::before {
+            content: "ℹ️";
+        }
+
+        /* Liste des événements */
+        .events-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .event-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .event-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #6b46c1 0%, #8b5cf6 100%);
+        }
+
+        .event-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        }
+
+        .event-card h3 {
+            color: #1e293b;
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0 0 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .event-card h3::before {
+            content: "🎯";
+            font-size: 24px;
+        }
+
+        .event-card p {
+            color: #64748b;
+            margin: 8px 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .event-card p strong {
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .manage-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #6b46c1 0%, #8b5cf6 100%);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            margin-top: 16px;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        }
+
+        .manage-button::before {
+            content: "⚙️";
+            font-size: 16px;
+        }
+
+        .manage-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            background: linear-gradient(135deg, #553c9a 0%, #6b46c1 100%);
+        }
+
+        /* Section des soumissions */
+        .submissions-section {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            border: 1px solid #e2e8f0;
+            margin-top: 32px;
+        }
+
+        .submissions-section h3 {
+            color: #1e293b;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 0 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .submissions-section h3::before {
+            content: "📝";
+            font-size: 28px;
+        }
+
+        .submission-card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .submission-card:hover {
+            background: #ffffff;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            transform: translateX(4px);
+        }
+
+        .submission-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .submission-card p {
+            margin: 4px 0;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .submission-card p strong {
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        /* Boutons d'action */
+        .submit-button,
+        .publish-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, #6b46c1 0%, #8b5cf6 100%);
+            color: #ffffff;
+        }
+
+        .submit-button:hover {
+            background: linear-gradient(135deg, #553c9a 0%, #6b46c1 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .publish-button {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+        }
+
+        .publish-button::before {
+            content: "✓";
+            font-weight: bold;
+        }
+
+        .publish-button:hover {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: #ffffff;
+            margin: 5% auto;
+            padding: 32px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .close-modal {
+            color: #64748b;
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: #ef4444;
+            background: #f8fafc;
+        }
+
+        .modal-content h3 {
+            color: #1e293b;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 0 24px 0;
+            padding-right: 40px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .modal-content h3::before {
+            content: "➕";
+            font-size: 28px;
+        }
+
+        /* Formulaire */
+        .event-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .event-form .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .event-form .form-group input,
+        .event-form .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            background: #ffffff;
+            box-sizing: border-box;
+        }
+
+        .event-form .form-group input:focus,
+        .event-form .form-group textarea:focus {
+            outline: none;
+            border-color: #6b46c1;
+            box-shadow: 0 0 0 3px rgba(107, 70, 193, 0.1);
+        }
+
+        .event-form .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+            line-height: 1.5;
+        }
+
+        .event-form .submit-button {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            margin-top: 8px;
+            justify-content: center;
+        }
+
+        /* États vides */
+        .events-list + p {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 2px dashed #e2e8f0;
+            padding: 40px;
+            text-align: center;
+            color: #64748b;
+            font-style: italic;
+            margin: 0;
+        }
+
+        .submissions-section > p {
+            text-align: center;
+            color: #64748b;
+            font-style: italic;
+            padding: 40px;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 2px dashed #e2e8f0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px 12px !important;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+                padding: 20px;
+            }
+            
+            .dashboard-header h2 {
+                font-size: 24px;
+            }
+            
+            .events-list {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .event-card {
+                padding: 20px;
+            }
+            
+            .submission-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .modal-content {
+                margin: 10% auto;
+                padding: 24px;
+                width: 95%;
+            }
+            
+            .submissions-section {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 16px 8px !important;
+            }
+            
+            .dashboard-header {
+                padding: 16px;
+            }
+            
+            .dashboard-header h2 {
+                font-size: 20px;
+            }
+            
+            .event-card,
+            .submissions-section {
+                padding: 16px;
+            }
+            
+            .modal-content {
+                padding: 20px;
+            }
+            
+            .add-event-button {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+        }
+    </style>
 {% endblock %}
 
 {% block extra_js %}

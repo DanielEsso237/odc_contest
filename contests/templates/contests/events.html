@@ -168,7 +168,7 @@
     </div>
     
     {% if events %}
-        <!-- Statistiques des événements -->
+        
         <div class="events-stats">
             <div class="stat-item">
                 <span class="stat-number">{{ events|length }}</span>
@@ -184,11 +184,10 @@
             </div>
         </div>
         
-        <!-- Liste des événements -->
+        
         <div class="event-list">
             {% for event in events %}
                 <div class="event-card">
-                    <!-- Statut de l'événement (optionnel) -->
                     {% comment %}
                     <div class="event-status status-active">
                         🟢 En cours
@@ -198,7 +197,7 @@
                     <h3>{{ event.title }}</h3>
                     <p>{{ event.description|default:"Description à venir..." }}</p>
                     
-                    <!-- Méta-informations (optionnel) -->
+                   
                     <div class="event-meta">
                         <span class="event-date">
                             {% if event.start_date %}
