@@ -25,7 +25,7 @@ def trials_view(request, event_id):
         if not title:
             messages.error(request, "Le titre de l'épreuve est obligatoire.")
         else:
-            # Calculer l'ordre automatiquement
+            
             order = Trial.objects.filter(event=event).count() + 1
             
             try:

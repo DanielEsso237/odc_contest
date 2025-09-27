@@ -98,19 +98,20 @@ def submit_entry(request):
 
 def login_view(request):
     if request.method == 'POST':
-        email = request.POST['email']
+        identifier = request.POST['email']  
         password = request.POST['password']
-        user = authenticate(request, username=email, password=password)
+        user = authenticate(request, username=identifier, password=password)
         if user is not None:
             login(request, user)
             messages.success(request, "Connexion réussie !")
             if user.is_superuser:
-                return redirect('/admin/')  # Priorité à l'admin Django pour superuser
+                return redirect('/admin/')
             else:
-                return redirect('accounts:home')  # Tous les autres (membres, participants, modos) vers home.html
+                return redirect('accounts:home')
         else:
-            messages.error(request, "Email ou mot de passe incorrect.")
+            messages.error(request, "Email/Utilisateur ou mot de passe incorrect.")
     return render(request, 'accounts/login.html')
+
 
 def register_view(request):
     from .forms import UserRegistrationForm
