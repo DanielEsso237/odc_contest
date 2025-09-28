@@ -154,7 +154,6 @@
             background: linear-gradient(135deg, #059669 0%, #10b981 100%);
         }
 
-
         .message {
             padding: 16px 20px;
             margin-bottom: 24px;
@@ -209,7 +208,6 @@
         .message.info::before {
             content: "ℹ️";
         }
-
 
         .trial-list {
             display: grid;
@@ -288,7 +286,6 @@
             padding-right: 0;
         }
 
-
         .trial-actions {
             display: flex;
             flex-wrap: wrap;
@@ -348,7 +345,6 @@
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
         }
 
-  
         .no-content {
             text-align: center;
             padding: 60px 40px;
@@ -376,7 +372,6 @@
             margin: 0;
         }
 
-     
         .back-action {
             text-align: center;
             padding-top: 20px;
@@ -387,6 +382,7 @@
             padding: 14px 28px;
             font-size: 16px;
         }
+
         .modal {
             display: none;
             position: fixed;
@@ -461,7 +457,6 @@
             font-size: 28px;
         }
 
-
         .event-form .form-group {
             margin-bottom: 20px;
         }
@@ -531,7 +526,6 @@
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
         }
 
- 
         .trial-list + p {
             background: #ffffff;
             border-radius: 12px;
@@ -580,11 +574,13 @@
             
             .trial-actions {
                 flex-direction: column;
+                gap: 12px; /* Ajout d'un espace entre les boutons empilés */
             }
             
             .btn {
                 justify-content: center;
                 padding: 12px 16px;
+                width: 100%; /* Pour uniformiser la largeur des boutons */
             }
             
             .modal-content {
@@ -622,6 +618,7 @@
             .btn {
                 padding: 10px 14px;
                 font-size: 13px;
+                width: 100%; /* Pour uniformiser la largeur des boutons */
             }
             
             .modal-content {
@@ -634,7 +631,6 @@
             }
         }
 
-     
         .trial-card {
             animation: fadeInUp 0.6s ease-out;
             animation-fill-mode: both;
@@ -656,7 +652,6 @@
             }
         }
 
-   
         @media (prefers-reduced-motion: reduce) {
             * {
                 animation-duration: 0.01ms !important;
