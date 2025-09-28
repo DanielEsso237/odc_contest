@@ -1,0 +1,91 @@
+.media-preview-container {
+    margin: 20px 0;
+    padding: 15px;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.preview-item {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    background: white;
+    max-width: 100%; 
+}
+
+.preview-item img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover; 
+    display: block;
+}
+
+.preview-item video {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.preview-item .file-info {
+    padding: 8px;
+    font-size: 12px;
+    color: #666;
+    background: #f8f9fa;
+    border-top: 1px solid #eee;
+}
+
+.preview-item .remove-file {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(255, 0, 0, 0.8);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+}
+
+.preview-item .remove-file:hover {
+    background: rgba(255, 0, 0, 1);
+}
+
+.help-text {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+
+@media (max-width: 768px) {
+    .preview-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+    }
+    
+    .preview-item img, .preview-item video {
+        height: 120px;
+    }
+}

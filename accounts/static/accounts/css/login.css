@@ -13,8 +13,6 @@ body {
     overflow-x: hidden;
 }
 
-
-
 .login-container {
     background: #ffffff;
     border-radius: 16px;
@@ -72,7 +70,6 @@ body {
     }
 }
 
-/* Effet subtil pour la section signup */
 .signup-section::before {
     content: '';
     position: absolute;
@@ -217,9 +214,9 @@ body {
 }
 
 .signup-button {
-    display: inline-block;
+    display: block; 
     padding: 12px 28px;
-    background: #ffffff; ;
+    background: #ffffff;
     color: #553c9a;
     text-align: center;
     text-decoration: none;
@@ -230,6 +227,8 @@ body {
     text-transform: uppercase;
     letter-spacing: 1px;
     animation: fadeIn 1s ease-out 0.9s both;
+    margin: 0 auto; 
+    max-width: 200px; 
 }
 
 .signup-button:hover {
@@ -271,7 +270,7 @@ body {
     border-left: 4px solid #ef4444;
 }
 
-/* Styles pour les champs d'erreur */
+
 .form-group .error {
     color: #ef4444;
     font-size: 12px;
@@ -288,7 +287,7 @@ body {
     75% { transform: translateX(5px); }
 }
 
-/* Animation d'entrée pour les éléments du formulaire */
+
 .form-group {
     animation: fadeInUp 0.6s ease-out forwards;
     opacity: 0;
@@ -311,18 +310,20 @@ body {
     }
 }
 
-/* Responsive design amélioré */
+
 @media (max-width: 767px) {
     .login-container {
         margin: 20px;
         border-radius: 12px;
     }
     
-    .login-section, .signup-section {
+    .login-section,
+    .signup-section {
         padding: 25px 20px;
     }
     
-    .login-title, .signup-title {
+    .login-title,
+    .signup-title {
         font-size: 24px;
     }
     
@@ -330,9 +331,13 @@ body {
         background-color: #6b46c1;
         color: #ffffff;
     }
+    
+    .signup-button {
+        margin: 0 auto; 
+        display: block; 
+    }
 }
 
-/* Loading state pour les boutons */
 .login-button:disabled {
     opacity: 0.7;
     cursor: not-allowed;
@@ -344,7 +349,6 @@ body {
     box-shadow: none;
 }
 
-/* Style pour les champs de fichier */
 input[type="file"] {
     padding: 10px;
     border: 2px dashed #e2e8f0;
@@ -356,19 +360,19 @@ input[type="file"]:hover {
     background: rgba(107, 70, 193, 0.05);
 }
 
-/* Amélioration pour les textarea */
 textarea {
     resize: vertical;
     min-height: 100px;
 }
 
-/* Style pour les checkboxes et radio buttons */
-input[type="checkbox"], input[type="radio"] {
+
+input[type="checkbox"],
+input[type="radio"] {
     width: auto;
     margin-right: 8px;
 }
 
-/* Effet de focus avancé */
+
 .form-group:focus-within label {
     color: #6b46c1;
     transform: translateY(-2px);

@@ -1,0 +1,128 @@
+.container {
+    padding: 20px;
+}
+
+h2 {
+    margin-bottom: 20px;
+}
+
+.button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.button:hover {
+    background-color: #5a6268;
+}
+
+.publication-post {
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.post-header {
+    padding: 15px 20px;
+    background: #f8f9fa;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+}
+
+.competitor-name {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.post-date {
+    color: #7f8c8d;
+    font-size: 14px;
+}
+
+.moderator-text {
+    padding: 15px 20px;
+    margin: 0;
+    line-height: 1.6;
+    background: #f0f8ff;
+    color: #2c3e50;
+    font-style: italic;
+}
+
+.post-description {
+    padding: 15px 20px;
+    margin: 0;
+    line-height: 1.6;
+}
+
+.post-actions {
+    padding: 15px 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+}
+
+.action-button {
+    background: none;
+    border: 1px solid #ddd;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-right: 10px;
+}
+
+.action-button:hover {
+    background: #f0f0f0;
+}
+
+.vote-btn.voted {
+    background: #ff4757;
+    color: white;
+    border-color: #ff4757;
+}
+
+.vote-btn.voted .vote-icon {
+    content: "♥";
+}
+
+.no-content {
+    text-align: center;
+    color: #7f8c8d;
+    font-style: italic;
+    padding: 40px;
+}
+
+@media (max-width: 768px) {
+    .media-container {
+        height: 300px;
+    }
+    
+    .carousel-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+    }
+    
+    .carousel-prev {
+        left: 10px;
+    }
+    
+    .carousel-next {
+        right: 10px;
+    }
+    
+    .media-counter {
+        top: 10px;
+        right: 10px;
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+}

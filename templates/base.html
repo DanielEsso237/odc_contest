@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ODC Vote - {% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/base.css' %}"> 
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    
+    <button class="mobile-toggle-fixed" id="mobileToggleFixed" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <header class="header expanded" id="mainHeader">
+        <div class="header-left">
+            <h1>⛩️ODC CONTEST</h1>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+        <div class="header-center"></div>
+        <div class="header-right">
+            <nav>
+                <a href="{% url 'accounts:home' %}" class="nav-link">Accueil</a>
+                <a href="{% url 'contests:events' %}" class="nav-link">Événements</a>
+                <a href="{% url 'accounts:notifications' %}" class="nav-link">Notifications</a>
+                {% if user.role|lower == 'participant' %}
+                    <a href="{% url 'accounts:submit_entry' %}" class="nav-link">Soumettre</a>
+                {% endif %}
+                {% if user.role|lower == 'modo' %}
+                    <a href="{% url 'contests:manage_events' %}" class="nav-link">Gérer les événements</a>
+                {% endif %}
+            </nav>
+            <div class="profile-info">
+                {% if user.profile_picture %}
+                    <img src="{{ user.profile_picture.url }}" alt="Photo de profil" class="profile-pic">
+                {% else %}
+                    <div class="profile-pic placeholder">?</div>
+                {% endif %}
+                <span class="username">{{ user.username }}</span>
+            </div>
+            <a href="{% url 'accounts:logout' %}" class="nav-link">Déconnexion</a>
+        </div>
+    </header>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block extra_js %}{% endblock %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const header = document.getElementById('mainHeader');
+            const mobileToggle = document.getElementById('mobileMenuToggle');
+            const mobileToggleFixed = document.getElementById('mobileToggleFixed');
+            let isExpanded = true;
+            let scrollTimeout;
+
+            function toggleHeader() {
+                isExpanded = !isExpanded;
+                
+                if (isExpanded) {
+                    header.classList.remove('collapsed');
+                    header.classList.add('expanded');
+                } else {
+                    header.classList.remove('expanded');
+                    header.classList.add('collapsed');
+                }
+                
+                mobileToggle.classList.toggle('active');
+                mobileToggleFixed.classList.toggle('active');
+            }
+
+            mobileToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleHeader();
+            });
+
+            mobileToggleFixed.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleHeader();
+            });
+
+            let lastScrollTop = 0;
+            
+            function handleScroll() {
+                if (window.innerWidth <= 768) {
+                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    
+                    clearTimeout(scrollTimeout);
+                    
+                    scrollTimeout = setTimeout(() => {
+                        if (scrollTop > lastScrollTop && scrollTop > 100) {
+                            if (isExpanded) {
+                                isExpanded = false;
+                                header.classList.remove('expanded');
+                                header.classList.add('collapsed');
+                                mobileToggle.classList.add('active');
+                                mobileToggleFixed.classList.add('active');
+                            }
+                        } else if (scrollTop < lastScrollTop) {
+                            if (!isExpanded) {
+                                isExpanded = true;
+                                header.classList.remove('collapsed');
+                                header.classList.add('expanded');
+                                mobileToggle.classList.remove('active');
+                                mobileToggleFixed.classList.remove('active');
+                            }
+                        }
+                        lastScrollTop = scrollTop;
+                    }, 100);
+                }
+            }
+
+            window.addEventListener('scroll', handleScroll, { passive: true });
+
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768 && isExpanded) {
+                    if (!header.contains(e.target) && !mobileToggleFixed.contains(e.target)) {
+                    }
+                }
+            });
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    isExpanded = true;
+                    header.classList.remove('collapsed');
+                    header.classList.add('expanded');
+                    mobileToggle.classList.remove('active');
+                    mobileToggleFixed.classList.remove('active');
+                }
+            });
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (window.innerWidth <= 768 && isExpanded) {
+                        setTimeout(() => {
+                            isExpanded = false;
+                            header.classList.remove('expanded');
+                            header.classList.add('collapsed');
+                            mobileToggle.classList.add('active');
+                            mobileToggleFixed.classList.add('active');
+                        }, 150);
+                    }
+                });
+            });
+
+            header.style.opacity = '0';
+            setTimeout(() => {
+                header.style.transition = 'opacity 0.5s ease';
+                header.style.opacity = '1';
+            }, 100);
+        });
+
+        if (window.innerWidth <= 768) {
+            let startY = 0;
+            let currentY = 0;
+            
+            document.addEventListener('touchstart', function(e) {
+                startY = e.touches[0].clientY;
+            }, { passive: true });
+            
+            document.addEventListener('touchmove', function(e) {
+                currentY = e.touches[0].clientY;
+            }, { passive: true });
+            
+            document.addEventListener('touchend', function(e) {
+                const diffY = startY - currentY;
+                
+                if (diffY > 50 && window.pageYOffset > 100) {
+                    const header = document.getElementById('mainHeader');
+                    const mobileToggle = document.getElementById('mobileMenuToggle');
+                    const mobileToggleFixed = document.getElementById('mobileToggleFixed');
+                    
+                    header.classList.remove('expanded');
+                    header.classList.add('collapsed');
+                    mobileToggle.classList.add('active');
+                    mobileToggleFixed.classList.add('active');
+                }
+                
+                if (diffY < -50) {
+                    const header = document.getElementById('mainHeader');
+                    const mobileToggle = document.getElementById('mobileMenuToggle');
+                    const mobileToggleFixed = document.getElementById('mobileToggleFixed');
+                    
+                    header.classList.remove('collapsed');
+                    header.classList.add('expanded');
+                    mobileToggle.classList.remove('active');
+                    mobileToggleFixed.classList.remove('active');
+                }
+            }, { passive: true });
+        }
+    </script>
+</body>
+</html>
