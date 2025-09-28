@@ -1,6 +1,6 @@
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth import get_user_model
-from django.db import models   # <--- import manquant !
+from django.db import models   
 
 UserModel = get_user_model()
 
@@ -12,7 +12,7 @@ class EmailOrUsernameModelBackend(ModelBackend):
         if username is None:
             username = kwargs.get(UserModel.USERNAME_FIELD)
         try:
-            # Recherche par username ou email
+         
             user = UserModel.objects.get(
                 models.Q(username__iexact=username) | models.Q(email__iexact=username)
             )
