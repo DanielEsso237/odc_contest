@@ -10,15 +10,11 @@ from accounts.models import User
 @login_required
 def events_view(request):
     events = Event.objects.all().order_by('-start_date')
-    # Ajout du gagnant global pour chaque événement terminé
     for event in events:
         if event.end_date < timezone.now():
-            # Récupérer les soumissions publiées de l'événement avec le nombre de votes
             submissions = Submission.objects.filter(
                 trial__event=event, is_published=True
             ).annotate(vote_count=models.Count('votes')).values('competitor', 'vote_count')
-            
-            # Agréger les votes par compétiteur
             competitor_votes = {}
             for submission in submissions:
                 competitor_id = submission['competitor']
@@ -27,8 +23,6 @@ def events_view(request):
                     competitor_votes[competitor_id] += vote_count
                 else:
                     competitor_votes[competitor_id] = vote_count
-            
-            # Trouver le compétiteur avec le plus de votes
             if competitor_votes:
                 winning_competitor_id = max(competitor_votes, key=competitor_votes.get)
                 winning_competitor = Competitor.objects.get(id=winning_competitor_id)
@@ -115,6 +109,30 @@ def vote_submission(request, submission_id):
         'success': True,
         'has_voted': has_voted,
         'vote_count': vote_count
+    })
+
+@login_required
+def ranking_view(request, trial_id):
+    trial = get_object_or_404(Trial, id=trial_id)
+    if request.user.role.lower() != 'modo':
+        return redirect('contests:trials', event_id=trial.event.id)
+  
+    submissions = Submission.objects.filter(
+        trial=trial, is_published=True
+    ).annotate(vote_count=models.Count('votes')).order_by('-vote_count')
+    
+    rankings = []
+    for submission in submissions:
+        rankings.append({
+            'competitor': submission.competitor,
+            'user': submission.competitor.user,
+            'vote_count': submission.vote_count
+        })
+    
+    return render(request, 'contests/ranking.html', {
+        'trial': trial,
+        'event': trial.event,
+        'rankings': rankings
     })
 
 @login_required
@@ -228,7 +246,7 @@ def manage_event_detail(request, event_id):
 def manage_trial_submissions(request, trial_id):
     trial = get_object_or_404(Trial, id=trial_id)
     if request.user.role.lower() != 'modo' or trial.event.created_by != request.user:
-        return redirect('accounts:home')
+        return redirect('contests:home')
     
     submissions = Submission.objects.filter(trial=trial, is_published=False)
     return render(request, 'contests/manage_trial_submissions.html', {
@@ -241,7 +259,7 @@ def manage_submission_detail(request, submission_id):
     submission = get_object_or_404(Submission, id=submission_id)
     trial = submission.trial
     if request.user.role.lower() != 'modo' or trial.event.created_by != request.user:
-        return redirect('accounts:home')
+        return redirect('contests:home')
     
     if request.method == 'POST':
         if 'publish' in request.POST:

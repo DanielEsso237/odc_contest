@@ -1,9 +1,7 @@
-/* Events Page - Modern Design */
 * {
     box-sizing: border-box;
 }
 
-/* Container principal */
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -22,7 +20,6 @@
     }
 }
 
-/* Titre principal */
 h2 {
     text-align: center;
     color: #1c1e21;

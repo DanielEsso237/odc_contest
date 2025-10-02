@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Épreuves - {% endblock %}
+{% block title %}Épreuves - {{ event.title }}{% endblock %}
 
 {% block content %}
     <main class="main-content">
@@ -38,8 +38,17 @@
                                         <span class="btn-icon">⚙️</span>
                                         Gérer les soumissions
                                     </a>
+                                    <a href="{% url 'contests:ranking' trial.id %}" class="btn btn-info">
+                                        <span class="btn-icon">🏅</span>
+                                        Classement
+                                    </a>
                                 {% endif %}
                             </div>
+                            {% if trial.winner and event.end_date < now %}
+                                <p class="winner-info">
+                                    <strong>Gagnant :</strong> {{ trial.winner.username }}
+                                </p>
+                            {% endif %}
                         </div>
                     </div>
                 {% endfor %}
@@ -59,7 +68,7 @@
             </a>
         </div>
 
-        <!-- Modal pour ajouter une épreuve -->
+        
         <div id="create-trial" class="modal">
             <div class="modal-content">
                 <span class="close-modal">&times;</span>
@@ -286,6 +295,13 @@
             padding-right: 0;
         }
 
+        .winner-info {
+            color: #059669;
+            font-weight: 600;
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
         .trial-actions {
             display: flex;
             flex-wrap: wrap;
@@ -330,6 +346,17 @@
 
         .btn-warning:hover {
             background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
             transform: translateY(-1px);
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
         }
@@ -574,13 +601,13 @@
             
             .trial-actions {
                 flex-direction: column;
-                gap: 12px; /* Ajout d'un espace entre les boutons empilés */
+                gap: 12px;
             }
             
             .btn {
                 justify-content: center;
                 padding: 12px 16px;
-                width: 100%; /* Pour uniformiser la largeur des boutons */
+                width: 100%;
             }
             
             .modal-content {
@@ -618,7 +645,7 @@
             .btn {
                 padding: 10px 14px;
                 font-size: 13px;
-                width: 100%; /* Pour uniformiser la largeur des boutons */
+                width: 100%;
             }
             
             .modal-content {
