@@ -10,4 +10,5 @@ urlpatterns = [
     path('manage-events/<int:event_id>/', views.manage_event_detail, name='manage_event_detail'),
     path('manage-trials/<int:trial_id>/submissions/', views.manage_trial_submissions, name='manage_trial_submissions'),
     path('manage-submissions/<int:submission_id>/', views.manage_submission_detail, name='manage_submission_detail'),
+    path('vote/<int:submission_id>/', views.vote_submission, name='vote_submission'),
 ]

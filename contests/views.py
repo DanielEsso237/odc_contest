@@ -1,19 +1,48 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Event, Trial, Competitor, Submission, SubmissionMedia
+from django.http import JsonResponse
+from django.utils import timezone
+from django.db import models
+from .models import Event, Trial, Competitor, Submission, SubmissionMedia, Vote
 from accounts.models import User
 
 @login_required
 def events_view(request):
-    events = Event.objects.all().order_by('-start_date') 
+    events = Event.objects.all().order_by('-start_date')
+    # Ajout du gagnant global pour chaque événement terminé
+    for event in events:
+        if event.end_date < timezone.now():
+            # Récupérer les soumissions publiées de l'événement avec le nombre de votes
+            submissions = Submission.objects.filter(
+                trial__event=event, is_published=True
+            ).annotate(vote_count=models.Count('votes')).values('competitor', 'vote_count')
+            
+            # Agréger les votes par compétiteur
+            competitor_votes = {}
+            for submission in submissions:
+                competitor_id = submission['competitor']
+                vote_count = submission['vote_count']
+                if competitor_id in competitor_votes:
+                    competitor_votes[competitor_id] += vote_count
+                else:
+                    competitor_votes[competitor_id] = vote_count
+            
+            # Trouver le compétiteur avec le plus de votes
+            if competitor_votes:
+                winning_competitor_id = max(competitor_votes, key=competitor_votes.get)
+                winning_competitor = Competitor.objects.get(id=winning_competitor_id)
+                event.winner = winning_competitor.user if competitor_votes[winning_competitor_id] > 0 else None
+            else:
+                event.winner = None
+        else:
+            event.winner = None
     return render(request, 'contests/events.html', {'events': events})
 
 @login_required
 def trials_view(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     
-    # Gestion de la création d'épreuve
     if request.method == 'POST' and 'create_trial' in request.POST:
         if request.user.role.lower() != 'modo':
             messages.error(request, "Vous n'avez pas les permissions nécessaires.")
@@ -25,9 +54,7 @@ def trials_view(request, event_id):
         if not title:
             messages.error(request, "Le titre de l'épreuve est obligatoire.")
         else:
-            
             order = Trial.objects.filter(event=event).count() + 1
-            
             try:
                 Trial.objects.create(
                     event=event,
@@ -42,13 +69,53 @@ def trials_view(request, event_id):
         return redirect('contests:trials', event_id=event.id)
     
     trials = Trial.objects.filter(event=event).order_by('order')
+    for trial in trials:
+        if event.end_date < timezone.now():
+            winning_submission = Submission.objects.filter(trial=trial, is_published=True).annotate(
+                vote_count=models.Count('votes')
+            ).order_by('-vote_count').first()
+            trial.winner = winning_submission.competitor.user if winning_submission else None
+        else:
+            trial.winner = None
+    
     return render(request, 'contests/trials.html', {'event': event, 'trials': trials})
 
 @login_required
 def publications_view(request, trial_id):
     trial = get_object_or_404(Trial, id=trial_id)
     submissions = Submission.objects.filter(trial=trial, is_published=True).order_by('-published_at')
+    for submission in submissions:
+        submission.has_voted = Vote.objects.filter(submission=submission, member=request.user).exists()
+        submission.vote_count = submission.votes.count()
     return render(request, 'contests/publications.html', {'trial': trial, 'submissions': submissions})
+
+@login_required
+def vote_submission(request, submission_id):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Méthode non autorisée'}, status=405)
+    
+    submission = get_object_or_404(Submission, id=submission_id, is_published=True)
+    user = request.user
+    
+    existing_vote = Vote.objects.filter(submission=submission, member=user).first()
+    
+    if existing_vote:
+        existing_vote.delete()
+        has_voted = False
+    else:
+        try:
+            Vote.objects.create(submission=submission, member=user)
+            has_voted = True
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+    
+    vote_count = submission.votes.count()
+    
+    return JsonResponse({
+        'success': True,
+        'has_voted': has_voted,
+        'vote_count': vote_count
+    })
 
 @login_required
 def manage_events(request):

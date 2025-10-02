@@ -377,3 +377,23 @@ input[type="radio"] {
     color: #6b46c1;
     transform: translateY(-2px);
 }
+
+
+
+
+
+/*test email*/
+
+/* accounts/static/accounts/css/login.css */
+.forgot-password {
+    display: block;
+    text-align: right;
+    color: #6b46c1;
+    text-decoration: none;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
