@@ -55,8 +55,10 @@
                         {% endif %}
                         
                         <div class="post-actions">
-                            <button class="action-button vote-btn" data-submission="{{ submission.id }}">
-                                <span class="vote-icon">♡</span> Voter
+                            <button class="action-button vote-btn {% if submission.has_voted %}voted{% endif %}" data-submission="{{ submission.id }}">
+                                <span class="vote-icon">{% if submission.has_voted %}♥{% else %}♡{% endif %}</span>
+                                <span class="vote-text">{% if submission.has_voted %}A voté{% else %}Voter{% endif %}</span>
+                                (<span class="vote-count">{{ submission.vote_count }}</span>)
                             </button>
                             <button class="action-button">💬 Commenter</button>
                             <button class="action-button">📤 Partager</button>
@@ -249,8 +251,12 @@
             border-color: #ff4757;
         }
         
-        .vote-btn.voted .vote-icon {
+        .vote-btn.voted .vote-icon::before {
             content: "♥";
+        }
+        
+        .vote-count {
+            margin-left: 5px;
         }
         
         .publication-post {
@@ -355,7 +361,7 @@ function initCarousels() {
     document.querySelectorAll('.media-carousel').forEach(carousel => {
         const submissionId = carousel.dataset.submission;
         updateSlideCounter(submissionId);
-        pauseInactiveVideos(carousel); // Pause les vidéos non actives au chargement
+        pauseInactiveVideos(carousel);
     });
 }
 
@@ -383,7 +389,7 @@ function changeSlide(submissionId, direction) {
         indicators[newIndex].classList.add('active');
     }
     
-    pauseInactiveVideos(carousel); // Pause les vidéos non actives après changement
+    pauseInactiveVideos(carousel);
     updateSlideCounter(submissionId, newIndex + 1);
 }
 
@@ -397,7 +403,7 @@ function currentSlide(submissionId, slideIndex) {
     slides[slideIndex].classList.add('active');
     indicators[slideIndex].classList.add('active');
     
-    pauseInactiveVideos(carousel); // Pause les vidéos non actives après sélection
+    pauseInactiveVideos(carousel);
     updateSlideCounter(submissionId, slideIndex + 1);
 }
 
@@ -413,7 +419,7 @@ function openFullscreen(img, submissionId, slideIndex) {
     const modal = document.getElementById('fullscreen-modal');
     const modalImg = document.getElementById('fullscreen-image');
     modal.style.display = 'block';
-    modalImg.src = img.src; // Utilise la source de l'image cliquée
+    modalImg.src = img.src;
     modalImg.alt = img.alt;
     document.body.style.overflow = 'hidden';
 }
@@ -431,7 +437,7 @@ function pauseInactiveVideos(carousel) {
     slides.forEach(slide => {
         const video = slide.querySelector('video');
         if (video && !slide.classList.contains('active')) {
-            video.pause(); // Pause les vidéos non actives
+            video.pause();
         }
     });
 }
@@ -446,13 +452,50 @@ function initVoteButtons() {
 }
 
 function toggleVote(submissionId, button) {
-    if (button.classList.contains('voted')) {
-        button.classList.remove('voted');
-        button.innerHTML = '<span class="vote-icon">♡</span> Voter';
-    } else {
-        button.classList.add('voted');
-        button.innerHTML = '<span class="vote-icon">♥</span> Voté';
+    fetch(`/contests/vote/${submissionId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+            'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update button state
+            button.classList.toggle('voted', data.has_voted);
+            const voteIcon = button.querySelector('.vote-icon');
+            const voteText = button.querySelector('.vote-text');
+            const voteCount = button.querySelector('.vote-count');
+            
+            voteIcon.textContent = data.has_voted ? '♥' : '♡';
+            voteText.textContent = data.has_voted ? 'A voté' : 'Voter';
+            voteCount.textContent = data.vote_count;
+        } else {
+            alert('Erreur : ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Une erreur est survenue lors du vote.');
+    });
+}
+
+function getCsrfToken() {
+    const name = 'csrftoken';
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
     }
+    return cookieValue;
 }
 
 document.addEventListener('keydown', function(e) {

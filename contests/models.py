@@ -91,7 +91,7 @@ class SubmissionMedia(models.Model):
         return False
 
 class Vote(models.Model):
-    member = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role__in': ['member', 'participant']}, related_name='votes', verbose_name="Membre votant")
+    member = models.ForeignKey(User, on_delete=models.CASCADE, related_name='votes', verbose_name="Membre votant")
     submission = models.ForeignKey(Submission, on_delete=models.CASCADE, related_name='votes', verbose_name="Soumission votée")
     voted_at = models.DateTimeField(auto_now_add=True, verbose_name="Date du vote")
 
