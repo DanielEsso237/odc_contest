@@ -1,15 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
-
-
-
 {% block title %}Publications - {% endblock %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'contests/css/publications.css' %}">
-    <script>
-        console.log('🔍 Tentative de chargement CSS:', "{% static 'contests/css/publications.css' %}");
-    </script>
 {% endblock %}
 
 {% block content %}
@@ -92,7 +86,4 @@
 
 {% block extra_js %}
     <script src="{% static 'contests/js/publications.js' %}"></script>
-    <script>
-        console.log('🔍 Tentative de chargement JS:', "{% static 'contests/js/publications.js' %}");
-    </script>
 {% endblock %}
