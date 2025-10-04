@@ -1,16 +1,11 @@
 Application Django - ODC_CONTEST
 Bienvenue dans le projet d'application Django pour la gestion des concours de ODC et autres. Ce document explique comment configurer et exécuter l'application en local pour les tests, en utilisant une base de données SQLite.
-Prérequis
-
-Creer un environnement virtuel python avec la commande python -m venv <nom_de_l_environnement>
-Activez l'environnement avec .\env\Scripts\activate
-Installez les dépendances du requirements.txt avec la commande pip install -r requirements.txt
 
 Étapes pour exécuter l'application en local
 1. Cloner le dépôt
 Clonez le dépôt GitHub et passez à la branche test/sqlite-config :
-git clone <URL_DU_DÉPÔT_GITHUB>
-cd <NOM_DU_RÉPERTOIRE>
+git clone <https://github.com/DanielEsso237/odc_contest.git>
+cd <ODC_CONTEST>
 git checkout test/sqlite-config
 
 2. Créer un environnement virtuel
@@ -26,7 +21,7 @@ pip install -r requirements.txt
 La branche test/sqlite-config utilise SQLite, donc aucune installation de base de données n’est nécessaire. Appliquez les migrations pour créer la base de données :
 python manage.py migrate
 
-5. (Facultatif) Créer un superutilisateur
+5. (Obligatoire) Créer un superutilisateur:Le super utilisateur sera l'administrateur technique de l application
 Pour accéder à l’interface d’administration Django, créez un superutilisateur :
 python manage.py createsuperuser
 
@@ -35,7 +30,19 @@ Démarrez le serveur de développement Django :
 python manage.py runserver
 
 Ouvrez votre navigateur et accédez à http://localhost:8000 pour voir l’application.
-7. Tester l’application
+7. Testez l'application :
+
+A - Créons un modo :
+
+a. Creez un compte
+
+b. Connectez vous en tant que admin, allez dans utilisateurs, choisissez le compte et modifiez la role du compte de membre à Modérateur et sauvegardez
+
+c.Connectez vous en tant que modérateur avec les identifiants crées ci dessous
+
+d. Accedez à la partie "gérer les évènements" dans le header, creez un évènement (ex:miss odc)
+
+
 
 URLs principales :
 /contests/events/ : Liste des événements

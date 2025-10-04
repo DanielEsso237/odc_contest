@@ -2,8 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from contests.models import Event, Trial, Competitor, Submission, SubmissionMedia
-from accounts.models import User
+from contests.models import Trial, Competitor, Submission, SubmissionMedia
 from django import forms
 
 class MultipleFileInput(forms.FileInput):
@@ -112,13 +111,13 @@ def login_view(request):
             messages.error(request, "Email/Utilisateur ou mot de passe incorrect.")
     return render(request, 'accounts/login.html')
 
-
 def register_view(request):
     from .forms import UserRegistrationForm
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST, request.FILES)
         if form.is_valid():
             user = form.save()
+            user.backend = 'accounts.backends.EmailOrUsernameModelBackend'
             login(request, user)
             messages.success(request, "Inscription réussie ! Bienvenue !")
             return redirect('accounts:home')
