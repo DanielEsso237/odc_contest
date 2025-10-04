@@ -1,28 +1,100 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Épreuves - {% endblock %}
+{% block title %}Épreuves - {{ event.title }}{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'contests/css/trials.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'contests/js/trials.js' %}"></script>
+{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h2>Épreuves pour l'Événement {{ event.title }}</h2>
+    <main class="main-content">
+        <div class="dashboard-header">
+            <div class="header-info">
+                <h2>Épreuves pour {{ event.title }}</h2>
+                <p class="event-description">Découvrez toutes les épreuves disponibles</p>
+            </div>
+            {% if user.role|lower == 'modo' %}
+                <a href="#create-trial" class="add-event-button">Ajouter une Épreuve</a>
+            {% endif %}
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
         <div class="trial-list">
             {% if trials %}
                 {% for trial in trials %}
                     <div class="trial-card">
-                        <h3>{{ trial.title }}</h3>
-                        <p>{{ trial.description }}</p>
-                        <a href="{% url 'contests:publications' trial.id %}" class="button">Voir les Publications</a>
+                        <div class="trial-badge">{{ forloop.counter }}</div>
+                        <div class="trial-content">
+                            <h3>{{ trial.title }}</h3>
+                            <p class="trial-description">{{ trial.description }}</p>
+                            <div class="trial-actions">
+                                <a href="{% url 'contests:publications' trial.id %}" class="btn btn-primary">
+                                    <span class="btn-icon">👁️</span>
+                                    Voir les Publications
+                                </a>
+                                {% if user.role|lower == 'modo' %}
+                                    <a href="{% url 'contests:manage_trial_submissions' trial.id %}" class="btn btn-warning">
+                                        <span class="btn-icon">⚙️</span>
+                                        Gérer les soumissions
+                                    </a>
+                                    <a href="{% url 'contests:ranking' trial.id %}" class="btn btn-info">
+                                        <span class="btn-icon">🏅</span>
+                                        Classement
+                                    </a>
+                                {% endif %}
+                            </div>
+                            {% if trial.winner and event.end_date < now %}
+                                <p class="winner-info">
+                                    <strong>Gagnant :</strong> {{ trial.winner.username }}
+                                </p>
+                            {% endif %}
+                        </div>
                     </div>
                 {% endfor %}
             {% else %}
-                <p class="no-content">Aucune épreuve disponible.</p>
+                <div class="no-content">
+                    <div class="no-content-icon">📋</div>
+                    <h3>Aucune épreuve disponible</h3>
+                    <p>Il n'y a pas encore d'épreuves pour cet événement.</p>
+                </div>
             {% endif %}
         </div>
-        <a href="{% url 'contests:events' %}" class="button">Retour aux Épreuves</a>
-    </div>
-{% endblock %}
 
-{% block extra_css %}
-    {% load static %} <!-- Ajoute cette ligne pour charger static localement -->
-    <link rel="stylesheet" href="{% static 'contests/css/events.css' %}">
+        <div class="back-action">
+            <a href="{% url 'contests:events' %}" class="btn btn-secondary btn-back">
+                <span class="btn-icon">⬅️</span>
+                Retour aux Événements
+            </a>
+        </div>
+
+        <div id="create-trial" class="modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h3>Ajouter une Épreuve</h3>
+                <form method="post" action="{% url 'contests:trials' event.id %}" class="event-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="title">Titre de l'épreuve :</label>
+                        <input type="text" name="title" id="title" required placeholder="Ex: Cosplay, Dessin, Photographie...">
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description :</label>
+                        <textarea name="description" id="description" placeholder="Décrivez les règles et critères de cette épreuve..."></textarea>
+                    </div>
+                    <input type="hidden" name="event_id" value="{{ event.id }}">
+                    <button type="submit" name="create_trial" class="submit-button">Créer l'Épreuve</button>
+                </form>
+            </div>
+        </div>
+    </main>
 {% endblock %}

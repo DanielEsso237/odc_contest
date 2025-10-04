@@ -8,9 +8,9 @@ class User(AbstractUser):
         ('participant', 'Participant'),
         ('member', 'Membre'),
     )
-    
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='member')
 
+    email = models.EmailField(unique=True, blank=False, null=False)  
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='member')
     profile_picture = models.ImageField(upload_to='profiles/', blank=True, null=True)
 
     def __str__(self):

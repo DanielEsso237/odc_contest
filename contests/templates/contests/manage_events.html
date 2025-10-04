@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gérer les Événements - {% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'contests/css/manage_events.css' %}">
+{% endblock %}
+
+{% block content %}
+    <main class="main-content">
+        <div class="dashboard-header">
+            <h2>Gérer les Événements</h2>
+            <a href="#create-event" class="add-event-button">Ajouter un Événement</a>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="events-list">
+            {% for event in events %}
+                <div class="event-card">
+                    <h3>{{ event.title }}</h3>
+                    <p><strong>Date :</strong> <strong>Du</strong> {{ event.start_date }} <strong>Au</strong> {{ event.end_date }}</p>
+                    <p><strong>Description :</strong> {{event.description}}</p>
+                    <a href="{% url 'contests:manage_event_detail' event.id %}" class="manage-button">Gérer</a>
+                </div>
+            {% empty %}
+                <p>Aucun événement créé.</p>
+            {% endfor %}
+        </div>
+
+        <div id="create-event" class="modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h3>Ajouter un Événement</h3>
+                <form method="post" action="{% url 'contests:manage_events' %}" class="event-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="title">Titre :</label>
+                        <input type="text" name="title" id="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description :</label>
+                        <textarea name="description" id="description" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="start_date">Date de début :</label>
+                        <input type="datetime-local" name="start_date" id="start_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="end_date">Date de fin :</label>
+                        <input type="datetime-local" name="end_date" id="end_date" required>
+                    </div>
+                    <button type="submit" name="create_event" class="submit-button">Créer</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="submissions-section">
+            <h3>Soumissions en attente</h3>
+            {% for submission in submissions %}
+                <div class="submission-card">
+                    <div class="submission-info">
+                        <p><strong>Concurrent :</strong> {{ submission.competitor.user.username }}</p>
+                        <p><strong>Épreuve :</strong> {{ submission.trial.title }}</p>
+                    </div>
+                    <form method="post" action="{% url 'contests:manage_events' %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="submission_id" value="{{ submission.id }}">
+                        <button type="submit" name="publish_submission" class="publish-button">Publier</button>
+                    </form>
+                </div>
+            {% empty %}
+                <p>Aucune soumission en attente.</p>
+            {% endfor %}
+        </div>
+    </main>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'contests/js/manage_events.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ trial.title }} - Soumissions - {% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'contests/css/manage_trial_submissions.css' %}">
+{% endblock %}
+
+{% block content %}
+    <main class="main-content">
+        <div class="dashboard-header">
+            <div class="header-info">
+                <h2>{{ trial.title }}</h2>
+                <p class="trial-description">Soumissions en attente de validation</p>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'contests:publications' trial.id %}" class="view-publications-button">
+                    <span class="btn-icon">👁️</span>
+                    Voir les Publications
+                </a>
+                <a href="{% url 'contests:manage_event_detail' trial.event.id %}" class="back-button">
+                    <span class="btn-icon">⬅️</span>
+                    Retour
+                </a>
+            </div>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="submissions-section">
+            <div class="section-header">
+                <h3>Soumissions à valider</h3>
+                <div class="submissions-count">
+                    <span class="count">{{ submissions|length }}</span> soumission{{ submissions|length|pluralize }}
+                </div>
+            </div>
+
+            <div class="submissions-list">
+                {% for submission in submissions %}
+                    <div class="submission-card">
+                        <div class="submission-header">
+                            <div class="candidate-info">
+                                <div class="candidate-avatar">
+                                    {% if submission.competitor.user.profile_picture %}
+                                        <img src="{{ submission.competitor.user.profile_picture.url }}" alt="Photo de {{ submission.competitor.user.username }}">
+                                    {% else %}
+                                        <div class="avatar-placeholder">{{ submission.competitor.user.username|first|upper }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="candidate-details">
+                                    <h4>{{ submission.competitor.user.username }}</h4>
+                                    <span class="submission-date">Soumis le {{ submission.published_at|date:"d/m/Y à H:i" }}</span>
+                                </div>
+                            </div>
+                            <div class="submission-status">
+                                <span class="status-badge pending">En attente</span>
+                            </div>
+                        </div>
+
+                        <div class="submission-content">
+                            <div class="submission-description">
+                                <h5>Description :</h5>
+                                <p>{{ submission.description|truncatewords:30 }}</p>
+                            </div>
+                            
+                            {% if submission.media_files.exists %}
+                                <div class="media-preview">
+                                    <h5>Médias ({{ submission.media_files.count }}) :</h5>
+                                    <div class="media-grid">
+                                        {% for media in submission.media_files.all|slice:":3" %}
+                                            <div class="media-item">
+                                                {% if media.is_video %}
+                                                    <video muted>
+                                                        <source src="{{ media.media.url }}" type="video/mp4">
+                                                    </video>
+                                                    <div class="media-overlay">
+                                                        <span class="media-type">📹</span>
+                                                    </div>
+                                                {% else %}
+                                                    <img src="{{ media.media.url }}" alt="Média">
+                                                    <div class="media-overlay">
+                                                        <span class="media-type">🖼️</span>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                        {% if submission.media_files.count > 3 %}
+                                            <div class="media-item more-media">
+                                                <span class="more-count">+{{ submission.media_files.count|add:"-3" }}</span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="submission-actions">
+                            <a href="{% url 'contests:manage_submission_detail' submission.id %}" class="btn btn-primary">
+                                <span class="btn-icon">🔍</span>
+                                Examiner en détail
+                            </a>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="no-content">
+                        <div class="no-content-icon">📝</div>
+                        <h3>Aucune soumission en attente</h3>
+                        <p>Toutes les soumissions ont été traitées ou il n'y en a pas encore pour cette épreuve.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+{% endblock %}

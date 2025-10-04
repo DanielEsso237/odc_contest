@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Classement - {{ trial.title }}{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'contests/css/ranking.css' %}">
+{% endblock %}
+
+{% block content %}
+    <main class="main-content">
+        <div class="dashboard-header">
+            <div class="header-info">
+                <h2>Classement pour {{ trial.title }}</h2>
+                <p class="event-description">Événement : {{ event.title }}</p>
+            </div>
+            <a href="{% url 'contests:trials' event.id %}" class="btn btn-secondary">
+                <span class="btn-icon">⬅️</span>
+                Retour aux Épreuves
+            </a>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="ranking-list">
+            {% if rankings %}
+                {% for rank in rankings %}
+                    <div class="ranking-card">
+                        <div class="ranking-badge">{{ forloop.counter }}</div>
+                        <div class="ranking-content">
+                            <h3>{{ rank.user.username }}</h3>
+                            <p class="ranking-info">
+                                <strong>Compétiteur :</strong> {{ rank.competitor }}<br>
+                                <strong>Nombre de votes :</strong> {{ rank.vote_count }}
+                            </p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-content">
+                    <div class="no-content-icon">🏅</div>
+                    <h3>Aucun classement disponible</h3>
+                    <p>Il n'y a pas encore de soumissions publiées ou de votes pour cette épreuve.</p>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+{% endblock %}

@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}Publications - {% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'contests/css/publications.css' %}">
+{% endblock %}
 
 {% block content %}
     <div class="container">
@@ -13,22 +17,55 @@
                             <span class="competitor-name">{{ submission.competitor.user.username }}</span>
                             <span class="post-date">{{ submission.published_at }}</span>
                         </div>
-                        <div class="post-media">
-                            {% if submission.media %}
-                                {% if submission.media.name|lower|slice:"-4:" == '.mp4' or submission.media.name|lower|slice:"-4:" == '.mov' %}
-                                    <video controls>
-                                        <source src="{{ submission.media.url }}" type="video/mp4">
-                                    </video>
-                                {% else %}
-                                    <img src="{{ submission.media.url }}" alt="Soumission">
+                        
+                        {% if submission.moderator_text %}
+                            <p class="moderator-text"><strong>Texte du Modérateur :</strong> {{ submission.moderator_text }}</p>
+                        {% endif %}
+                        
+                        <p class="post-description"><strong>Texte de la Concurrente :</strong> {{ submission.description }}</p>
+                        
+                        {% if submission.media_files.exists %}
+                            <div class="media-carousel" data-submission="{{ submission.id }}">
+                                <div class="media-container">
+                                    {% for media in submission.media_files.all %}
+                                        <div class="media-slide {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+                                            {% if media.is_video %}
+                                                <video controls>
+                                                    <source src="{{ media.media.url }}" type="video/mp4">
+                                                    Votre navigateur ne supporte pas la lecture vidéo.
+                                                </video>
+                                            {% else %}
+                                                <img src="{{ media.media.url }}" alt="Soumission {{ forloop.counter }}">
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                {% if submission.media_files.count > 1 %}
+                                    <button class="carousel-btn carousel-prev">‹</button>
+                                    <button class="carousel-btn carousel-next">›</button>
+                                    
+                                    <div class="carousel-indicators">
+                                        {% for media in submission.media_files.all %}
+                                            <span class="indicator {% if forloop.first %}active{% endif %}"></span>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    <div class="media-counter">
+                                        <span class="current-slide">1</span> / {{ submission.media_files.count }}
+                                    </div>
                                 {% endif %}
-                            {% endif %}
-                        </div>
-                        <p class="post-description">{{ submission.description }}</p>
+                            </div>
+                        {% endif %}
+                        
                         <div class="post-actions">
-                            <button class="action-button">Voter</button>
-                            <button class="action-button">Commenter</button>
-                            <button class="action-button">Partager</button>
+                            <button class="action-button vote-btn {% if submission.has_voted %}voted{% endif %}" data-submission="{{ submission.id }}">
+                                <span class="vote-icon">{% if submission.has_voted %}♥{% else %}♡{% endif %}</span>
+                                <span class="vote-text">{% if submission.has_voted %}A voté{% else %}Voter{% endif %}</span>
+                                (<span class="vote-count">{{ submission.vote_count }}</span>)
+                            </button>
+                            <button class="action-button">💬 Commenter</button>
+                            <button class="action-button">📤 Partager</button>
                         </div>
                     </div>
                 {% endfor %}
@@ -38,9 +75,15 @@
         </div>
         <a href="{% url 'contests:trials' trial.event.id %}" class="button">Retour aux Épreuves</a>
     </div>
+    
+    <div id="fullscreen-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <img id="fullscreen-image" src="" alt="">
+        </div>
+    </div>
 {% endblock %}
 
-{% block extra_css %}
-    {% load static %} <!-- Ajoute cette ligne pour charger static localement -->
-    <link rel="stylesheet" href="{% static 'contests/css/publications.css' %}">
+{% block extra_js %}
+    <script src="{% static 'contests/js/publications.js' %}"></script>
 {% endblock %}

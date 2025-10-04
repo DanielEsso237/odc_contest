@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Soumettre une Entrée - {% endblock %}
 
@@ -12,9 +13,31 @@
                     <div class="message {{ message.tags }}">{{ message }}</div>
                 {% endfor %}
             {% endif %}
-            <form method="post" enctype="multipart/form-data">
+            
+            <form method="post" enctype="multipart/form-data" id="submission-form">
                 {% csrf_token %}
-                {{ form.as_p }}
+                
+                <div class="form-group">
+                    <label for="{{ form.trial.id_for_label }}">{{ form.trial.label }}</label>
+                    {{ form.trial }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                    {{ form.description }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.media_files.id_for_label }}">{{ form.media_files.label }}</label>
+                    {{ form.media_files }}
+                    <div class="help-text">{{ form.media_files.help_text }}</div>
+                </div>
+                
+                <div id="media-preview" class="media-preview-container" style="display: none;">
+                    <h4>Aperçu des fichiers sélectionnés :</h4>
+                    <div id="preview-grid" class="preview-grid"></div>
+                </div>
+                
                 <button type="submit" class="login-button">Soumettre</button>
             </form>
             <a href="{% url 'accounts:home' %}" class="login-button">Retour</a>
@@ -23,6 +46,9 @@
 {% endblock %}
 
 {% block extra_css %}
-    {% load static %}
     <link rel="stylesheet" href="{% static 'accounts/css/submit_entry.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'accounts/js/submit_entry.js' %}"></script>
 {% endblock %}

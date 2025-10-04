@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ event.title }} - Gérer - {% endblock %}
+
+{% block content %}
+    <main class="main-content">
+        <div class="dashboard-header">
+            <h2>{{ event.title }}</h2>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="sections">
+            <div class="section" onclick="window.location.href='{% url 'contests:trials' event.id %}'">
+                <h3>Épreuves</h3>
+            </div>
+            <div class="section" onclick="window.location.href='#'">
+                <h3>Participants(es)</h3>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'contests/css/manage_event_detail.css' %}">
+{% endblock %}
