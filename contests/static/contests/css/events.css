@@ -9,6 +9,72 @@
     animation: fadeInUp 0.6s ease-out;
 }
 
+.events-header {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.events-subtitle {
+    color: #64748b;
+    font-size: 18px;
+    font-weight: 400;
+    margin-top: 10px;
+    margin-bottom: 0;
+}
+
+.event-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 15px;
+}
+
+.status-active {
+    background: linear-gradient(135deg, #dcfdf4 0%, #bbf7d0 100%);
+    color: #059669;
+    border: 1px solid #a7f3d0;
+}
+
+.status-upcoming {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #d97706;
+    border: 1px solid #fcd34d;
+}
+
+.status-ended {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    color: #475569;
+    border: 1px solid #cbd5e0;
+}
+
+.event-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.event-date {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.event-participants {
+    color: #6b46c1;
+    font-size: 13px;
+    font-weight: 600;
+}
+
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -17,6 +83,17 @@
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@keyframes cardAppear {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
     }
 }
 
@@ -53,7 +130,6 @@ h2::after {
     }
 }
 
-/* Liste des événements */
 .event-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -61,7 +137,6 @@ h2::after {
     margin-bottom: 40px;
 }
 
-/* Cartes d'événements */
 .event-card {
     background: linear-gradient(135deg, #ffffff 0%, #fdfdff 100%);
     padding: 30px;
@@ -121,7 +196,6 @@ h2::after {
     }
 }
 
-/* Contenu des cartes */
 .event-card h3 {
     color: #1e293b;
     font-size: 22px;
@@ -141,7 +215,6 @@ h2::after {
     z-index: 2;
 }
 
-/* Boutons */
 .button {
     display: inline-flex;
     align-items: center;
@@ -190,7 +263,6 @@ h2::after {
     box-shadow: 0 4px 15px rgba(107, 70, 193, 0.3);
 }
 
-/* Message "pas de contenu" */
 .no-content {
     text-align: center;
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
@@ -213,7 +285,6 @@ h2::after {
     opacity: 0.7;
 }
 
-/* Styles pour les épreuves */
 .trial-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -253,7 +324,6 @@ h2::after {
     margin-bottom: 12px;
 }
 
-/* Styles pour les soumissions */
 .submission-feed {
     display: flex;
     flex-direction: column;
@@ -345,7 +415,6 @@ h2::after {
     transform: translateY(0);
 }
 
-/* States des boutons d'action */
 .action-button.liked {
     background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
     color: #dc2626;
@@ -358,7 +427,6 @@ h2::after {
     border-color: #bfdbfe;
 }
 
-/* Responsive Design */
 @media (max-width: 1024px) {
     .container {
         padding: 16px;
@@ -419,6 +487,10 @@ h2::after {
         font-size: 36px;
         margin-bottom: 12px;
     }
+    
+    .events-subtitle {
+        font-size: 16px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -467,22 +539,6 @@ h2::after {
     }
 }
 
-/* Animation pour les éléments qui apparaissent */
-.event-card,
-.trial-card,
-.submission-post {
-    animation: slideIn 0.6s ease-out both;
-}
-
-.event-card:nth-child(odd) {
-    animation-delay: 0.1s;
-}
-
-.event-card:nth-child(even) {
-    animation-delay: 0.2s;
-}
-
-/* Amélioration de l'accessibilité */
 @media (prefers-reduced-motion: reduce) {
     * {
         animation-duration: 0.01ms !important;
@@ -491,14 +547,12 @@ h2::after {
     }
 }
 
-/* Focus states pour l'accessibilité */
 .button:focus,
 .action-button:focus {
     outline: 2px solid #6b46c1;
     outline-offset: 2px;
 }
 
-/* État de chargement */
 .loading {
     display: flex;
     justify-content: center;
