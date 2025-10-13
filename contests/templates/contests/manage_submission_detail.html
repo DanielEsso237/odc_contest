@@ -6,36 +6,96 @@
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'contests/css/manage_submission_detail.css' %}">
 {% endblock %}
-{% block extra_js %}
-    <script src="{% static 'contests/js/manage_submission_detail.js' %}"></script>
-{% endblock %}
 
 {% block content %}
     <div class="container">
         <h2>Détails de la Soumission - {{ submission.competitor.user.username }}</h2>
+        
         <div class="submission-detail">
-            <p><strong>Texte soumis :</strong> {{ submission.description }}</p>
-            {% for media in submission.media_files.all %}
-                {% if media.media.url|slice:"-4:" == ".jpg" or media.media.url|slice:"-4:" == ".png" or media.media.url|slice:"-5:" == ".jpeg" %}
-                    <img src="{{ media.media.url }}" alt="Media" class="submission-media">
-                {% elif media.media.url|slice:"-4:" == ".mp4" or media.media.url|slice:"-4:" == ".mov" %}
-                    <video controls class="submission-media">
-                        <source src="{{ media.media.url }}" type="video/mp4">
-                        Votre navigateur ne supporte pas la vidéo.
-                    </video>
-                {% endif %}
-            {% endfor %}
-            <p><strong>Attention :</strong> Vérifiez que le contenu (surtout les médias) ne contient pas de contenu inapproprié (p*rno, mutilation, etc.) avant publication.</p>
+            <p>
+                <strong>Texte soumis :</strong>
+                {{ submission.description }}
+            </p>
+
+            <!-- Affichage des médias -->
+            <div class="media-gallery">
+                {% for media in submission.media_files.all %}
+                    {% if media.is_video %}
+                        <video controls class="submission-media">
+                            <source src="{{ media.media.url }}" type="video/mp4">
+                            Votre navigateur ne supporte pas la lecture vidéo.
+                        </video>
+                    {% else %}
+                        <img src="{{ media.media.url }}" alt="Soumission {{ forloop.counter }}" class="submission-media">
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <p>
+                <strong>Attention :</strong> 
+                Vérifiez que le contenu (surtout les médias) ne contient pas de contenu inapproprié (pornographie, violence extrême, mutilation, etc.) avant publication.
+            </p>
+
+            <!-- Formulaire de modération -->
             <form method="post">
                 {% csrf_token %}
                 <div class="form-group">
-                    <label for="moderator_text">Texte du Modérateur :</label>
-                    <textarea name="moderator_text" id="moderator_text" class="form-control" rows="4" placeholder="Ajouter un commentaire ou texte"></textarea>
+                    <label for="moderator_text">Texte du Modérateur (optionnel) :</label>
+                    <textarea 
+                        name="moderator_text" 
+                        id="moderator_text" 
+                        class="form-control" 
+                        rows="5" 
+                        placeholder="Ajoutez un commentaire ou un texte d'introduction pour cette publication..."
+                    ></textarea>
                 </div>
-                <button type="submit" name="publish" class="publish-button">Publier</button>
-                <button type="submit" name="reject" class="reject-button">Rejeter</button>
+                <div class="button-group">
+                    <button type="submit" name="publish" class="publish-button">
+                        Publier la soumission
+                    </button>
+                    <button 
+                        type="submit" 
+                        name="reject" 
+                        class="reject-button"
+                        onclick="return confirm('Êtes-vous sûr de vouloir rejeter et supprimer cette soumission ?');"
+                    >
+                        Rejeter et supprimer
+                    </button>
+                </div>
             </form>
         </div>
-        <a href="{% url 'contests:manage_trial_submissions' trial.id %}" class="button">Retour</a>
+
+        <a href="{% url 'contests:manage_trial_submissions' trial.id %}" class="button">
+            Retour aux soumissions
+        </a>
     </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        // Confirmation avant rejet
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const publishBtn = document.querySelector('.publish-button');
+            
+            // Animation de chargement lors de la soumission
+            form.addEventListener('submit', function(e) {
+                const clickedBtn = document.activeElement;
+                if (clickedBtn.name === 'publish' || clickedBtn.name === 'reject') {
+                    clickedBtn.disabled = true;
+                    clickedBtn.innerHTML = '<span class="loading"></span> Traitement...';
+                }
+            });
+
+            // Preview des vidéos au survol
+            const videos = document.querySelectorAll('video.submission-media');
+            videos.forEach(video => {
+                video.addEventListener('mouseenter', function() {
+                    if (this.paused) {
+                        this.play();
+                    }
+                });
+            });
+        });
+    </script>
 {% endblock %}

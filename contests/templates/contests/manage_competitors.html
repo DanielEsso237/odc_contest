@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gérer les Participants - {{ event.title }} - {% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'contests/css/manage_competitors.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="page-header">
+            <h2>🎭 Gérer les Participants(es)</h2>
+            <p class="event-name">Événement : <strong>{{ event.title }}</strong></p>
+            <a href="{% url 'contests:manage_event_detail' event.id %}" class="btn-back">← Retour</a>
+        </div>
+
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="content-grid">
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3>➕ Ajouter un(e) Participant(e)</h3>
+                </div>
+                <div class="card-body">
+                    {% if available_members %}
+                        <form method="POST" class="add-form">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="user_id">Sélectionner un membre :</label>
+                                <select name="user_id" id="user_id" required class="form-select">
+                                    <option value="">-- Choisir un membre --</option>
+                                    {% for member in available_members %}
+                                        <option value="{{ member.id }}">
+                                            {{ member.username }} - {{ member.email }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <button type="submit" name="add_competitor" class="btn-primary">
+                                ✓ Ajouter comme Participant(e)
+                            </button>
+                        </form>
+                    {% else %}
+                        <p class="no-data">Aucun membre disponible. Tous les membres sont déjà participants.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Section Liste des participants -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>👥 Participants(es) Actuels ({{ competitors.count }})</h3>
+                </div>
+                <div class="card-body">
+                    {% if competitors %}
+                        <div class="competitors-list">
+                            {% for competitor in competitors %}
+                                <div class="competitor-item">
+                                    <div class="competitor-info">
+                                        <div class="competitor-avatar">
+                                            {% if competitor.user.profile_picture %}
+                                                <img src="{{ competitor.user.profile_picture.url }}" alt="{{ competitor.user.username }}">
+                                            {% else %}
+                                                <div class="avatar-placeholder">{{ competitor.user.username|slice:":1"|upper }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="competitor-details">
+                                            <h4>{{ competitor.user.username }}</h4>
+                                            <p class="email">{{ competitor.user.email }}</p>
+                                            <div class="competitor-stats">
+                                                <span class="stat">
+                                                    📝 {{ competitor.submissions_count }} soumission(s)
+                                                </span>
+                                                <span class="stat">
+                                                    ✅ {{ competitor.published_submissions_count }} publiée(s)
+                                                </span>
+                                                <span class="stat">
+                                                    ♥ {{ competitor.total_votes }} vote(s)
+                                                </span>
+                                            </div>
+                                            <p class="registered-info">
+                                                Inscrit(e) le {{ competitor.registered_at|date:"d/m/Y à H:i" }} 
+                                                par {{ competitor.registered_by.username }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="competitor-actions">
+                                        <form method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir retirer ce/cette participant(e) ?');">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="competitor_id" value="{{ competitor.id }}">
+                                            <button type="submit" name="remove_competitor" class="btn-danger">
+                                                🗑️ Retirer
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="no-data">Aucun(e) participant(e) pour le moment.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+       
+        document.addEventListener('DOMContentLoaded', function() {
+            const messages = document.querySelectorAll('.alert');
+            messages.forEach(message => {
+                setTimeout(() => {
+                    message.style.opacity = '0';
+                    setTimeout(() => message.remove(), 300);
+                }, 5000);
+            });
+        });
+    </script>
+{% endblock %}

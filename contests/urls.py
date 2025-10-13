@@ -13,4 +13,5 @@ urlpatterns = [
     path('manage/trials/<int:trial_id>/submissions/', views.manage_trial_submissions, name='manage_trial_submissions'),
     path('manage/submissions/<int:submission_id>/', views.manage_submission_detail, name='manage_submission_detail'),
     path('ranking/<int:trial_id>/', views.ranking_view, name='ranking'),
+    path('event/<int:event_id>/competitors/', views.manage_competitors, name='manage_competitors'),
 ]
