@@ -25,6 +25,7 @@ II/ Installation et configuration
 1. Cloner le dépôt
 git clone https://github.com/DanielEsso237/odc_contest.git
 cd otaku-vote
+git checkout test/sqlite-config
 
 2. Créer et activer un environnement virtuel
 python -m venv venv
