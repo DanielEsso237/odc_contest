@@ -17,7 +17,7 @@
                 {{ submission.description }}
             </p>
 
-            <!-- Affichage des médias -->
+            
             <div class="media-gallery">
                 {% for media in submission.media_files.all %}
                     {% if media.is_video %}
@@ -36,7 +36,7 @@
                 Vérifiez que le contenu (surtout les médias) ne contient pas de contenu inapproprié (pornographie, violence extrême, mutilation, etc.) avant publication.
             </p>
 
-            <!-- Formulaire de modération -->
+         
             <form method="post">
                 {% csrf_token %}
                 <div class="form-group">
@@ -57,7 +57,6 @@
                         type="submit" 
                         name="reject" 
                         class="reject-button"
-                        onclick="return confirm('Êtes-vous sûr de vouloir rejeter et supprimer cette soumission ?');"
                     >
                         Rejeter et supprimer
                     </button>
@@ -69,33 +68,4 @@
             Retour aux soumissions
         </a>
     </div>
-{% endblock %}
-
-{% block extra_js %}
-    <script>
-        // Confirmation avant rejet
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.querySelector('form');
-            const publishBtn = document.querySelector('.publish-button');
-            
-            // Animation de chargement lors de la soumission
-            form.addEventListener('submit', function(e) {
-                const clickedBtn = document.activeElement;
-                if (clickedBtn.name === 'publish' || clickedBtn.name === 'reject') {
-                    clickedBtn.disabled = true;
-                    clickedBtn.innerHTML = '<span class="loading"></span> Traitement...';
-                }
-            });
-
-            // Preview des vidéos au survol
-            const videos = document.querySelectorAll('video.submission-media');
-            videos.forEach(video => {
-                video.addEventListener('mouseenter', function() {
-                    if (this.paused) {
-                        this.play();
-                    }
-                });
-            });
-        });
-    </script>
 {% endblock %}
