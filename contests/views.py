@@ -279,3 +279,83 @@ def manage_submission_detail(request, submission_id):
         'submission': submission,
         'trial': trial
     })
+    
+    
+
+@login_required
+def manage_competitors(request, event_id):
+    """Vue pour gérer les participants d'un événement"""
+    event = get_object_or_404(Event, id=event_id)
+
+    if request.user.role.lower() != 'modo' or event.created_by != request.user:
+        messages.error(request, "Vous n'avez pas les permissions nécessaires.")
+        return redirect('contests:events')
+    
+    if request.method == 'POST':
+        if 'add_competitor' in request.POST:
+            user_id = request.POST.get('user_id')
+            try:
+                user = User.objects.get(id=user_id, role='member')
+                
+                existing_competitor = Competitor.objects.filter(user=user, event=event).first()
+                if existing_competitor:
+                    messages.warning(request, f"{user.username} est déjà participant(e) à cet événement.")
+                else:
+                   
+                    user.role = 'participant'
+                    user.save()
+                    
+                   
+                    Competitor.objects.create(
+                        user=user,
+                        event=event,
+                        registered_by=request.user
+                    )
+                    messages.success(request, f"{user.username} a été ajouté(e) comme participant(e) !")
+            except User.DoesNotExist:
+                messages.error(request, "Utilisateur non trouvé ou pas un membre.")
+            
+            return redirect('contests:manage_competitors', event_id=event.id)
+        
+        elif 'remove_competitor' in request.POST:
+            competitor_id = request.POST.get('competitor_id')
+            try:
+                competitor = Competitor.objects.get(id=competitor_id, event=event)
+                user = competitor.user
+                
+                other_events_count = Competitor.objects.filter(user=user).exclude(id=competitor.id).count()
+                competitor.delete()
+                if other_events_count == 0:
+                    user.role = 'member'
+                    user.save()
+                    messages.success(request, f"{user.username} a été retiré(e) et repassé(e) en membre.")
+                else:
+                    messages.success(request, f"{user.username} a été retiré(e) de cet événement.")
+                
+            except Competitor.DoesNotExist:
+                messages.error(request, "Participant(e) non trouvé(e).")
+            
+            return redirect('contests:manage_competitors', event_id=event.id)
+    
+    
+    available_members = User.objects.filter(role='member').order_by('username')
+    
+    
+    competitors = Competitor.objects.filter(event=event).select_related('user').order_by('registered_at')
+    
+   
+    for competitor in competitors:
+        competitor.submissions_count = Submission.objects.filter(competitor=competitor).count()
+        competitor.published_submissions_count = Submission.objects.filter(
+            competitor=competitor, 
+            is_published=True
+        ).count()
+        competitor.total_votes = Vote.objects.filter(
+            submission__competitor=competitor
+        ).count()
+    
+    return render(request, 'contests/manage_competitors.html', {
+        'event': event,
+        'competitors': competitors,
+        'available_members': available_members
+    })
